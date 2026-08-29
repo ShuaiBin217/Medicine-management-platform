@@ -7,6 +7,12 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: ${DB_USERNAME:root}
     password: ${DB_PASSWORD:12345678}
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:sql/table.sql
+      separator: ;;
+      continue-on-error: true
   redis:
     host: ${SPRING_REDIS_HOST:localhost}
     port: ${SPRING_REDIS_PORT:6379}
