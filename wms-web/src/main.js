@@ -8,7 +8,7 @@ import VueRouter from 'vue-router';
 import router from './router';
 import store from './store';
 Vue.prototype.$axios=axios;
-Vue.prototype.$httpUrl='http://localhost:8090'
+Vue.prototype.$httpUrl = process.env.VUE_APP_API_URL || 'http://localhost:8090'
 Vue.config.productionTip = false
 //Vue.use(ElementUI);
 Vue.use(VueRouter);
