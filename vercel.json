@@ -1,8 +1,0 @@
-{
-  "buildCommand": "cd wms-web && npm install && npm run build",
-  "outputDirectory": "wms-web/dist",
-  "routes": [
-    { "handle": "filesystem" },
-    { "src": "/(.*)", "dest": "/index.html" }
-  ]
-}
