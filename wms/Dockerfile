@@ -4,7 +4,7 @@ COPY pom.xml .
 COPY .mvn .mvn
 COPY src src
 COPY knowledge-base knowledge-base
-RUN mvn clean package -DskipTests
+RUN mvn clean package -DskipTests -s .mvn/settings.xml
 
 FROM eclipse-temurin:17-jre
 WORKDIR /app
