@@ -1,7 +1,5 @@
 module.exports = {
-  publicPath: process.env.NODE_ENV === 'production'
-    ? '/Medicine-management-platform/'
-    : '/',
+  publicPath: '/',
   outputDir: 'dist',
   assetsDir: 'static',
   productionSourceMap: false
