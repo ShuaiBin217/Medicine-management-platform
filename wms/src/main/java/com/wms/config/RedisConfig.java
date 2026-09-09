@@ -57,7 +57,6 @@ public class RedisConfig {
         cacheConfigurations.put("categoryList", defaultConfig.entryTtl(Duration.ofMinutes(30)));
         cacheConfigurations.put("storageList", defaultConfig.entryTtl(Duration.ofMinutes(30)));
         cacheConfigurations.put("stockSummary", defaultConfig.entryTtl(Duration.ofMinutes(5)));
-        cacheConfigurations.put("aiChat", defaultConfig.entryTtl(Duration.ofMinutes(30)));
         cacheConfigurations.put("toolQuery", defaultConfig.entryTtl(Duration.ofMinutes(5)));
 
         return RedisCacheManager.builder(factory)

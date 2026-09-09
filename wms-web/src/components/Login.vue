@@ -255,7 +255,7 @@
                 <div class="login-card__logo">
                     <i class="el-icon-first-aid-kit"></i>
                 </div>
-                <h1 class="login-card__title">药品管理系统</h1>
+                <h1 class="login-card__title">药品管理平台</h1>
                 <p class="login-card__subtitle">欢迎回来，请登录您的账号</p>
                 <el-form :model="loginForm" label-width="0px"
                          :rules="rules" ref="loginForm" class="login-form">

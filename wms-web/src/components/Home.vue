@@ -3,7 +3,7 @@
         <div class="home-welcome">
             <div class="welcome-text">
                 <h1 class="welcome-title">欢迎你！{{user.name}}</h1>
-                <p class="welcome-subtitle">这是药品管理系统的个人中心，您可以在此查看和管理您的信息</p>
+                <p class="welcome-subtitle">这是药品管理平台的个人中心，您可以在此查看和管理您的信息</p>
             </div>
         </div>
         <div class="home-card">

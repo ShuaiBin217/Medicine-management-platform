@@ -27,27 +27,6 @@ spring:
       key-prefix: "wms:"
       use-key-prefix: true
 
-ai:
-  deepseek:
-    api-key: ${DEEPSEEK_API_KEY:your-deepseek-api-key}
-    api-url: https://api.deepseek.com/chat/completions
-    base-url: https://api.deepseek.com
-    model: deepseek-chat
-    temperature: 0.5
-    max-tokens: 2048
-    max-memory-messages: 20
-  zhipu:
-    api-key: ${ZHIPU_API_KEY:your-zhipu-api-key}
-    base-url: https://open.bigmodel.cn/api/paas/v4
-    embedding-model: embedding-2
-  knowledge-base:
-    path: knowledge-base
-    chunk-size: 300
-    chunk-overlap: 30
-    max-results: 3
-    min-score: 0.6
-    auto-load: true
-
 Logging:
   level:
     com.wms: debug

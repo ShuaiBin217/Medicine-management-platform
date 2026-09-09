@@ -1,6 +1,7 @@
 .DS_Store
 
 .idea/
+.vscode/
 *.iml
 *.iws
 *.ipr
@@ -8,6 +9,12 @@
 wms/target/
 wms-web/node_modules/
 wms-web/dist/
+
+# Python AI 服务
+wms-ai/.venv/
+wms-ai/venv/
+__pycache__/
+*.pyc
 
 *.class
 *.jar

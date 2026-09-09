@@ -40,6 +40,7 @@ jobs:
         run: cd wms-web && npm run build
         env:
           VUE_APP_API_URL: ${{ secrets.VUE_APP_API_URL }}
+          VUE_APP_AI_URL: ${{ secrets.VUE_APP_AI_URL }}
 
       - name: Setup Pages
         uses: actions/configure-pages@v4

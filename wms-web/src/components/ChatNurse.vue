@@ -74,7 +74,7 @@
                         </div>
                     </div>
 
-                    <div v-if="loading" class="chat-message message-assistant">
+                    <div v-if="loading && !streaming" class="chat-message message-assistant">
                         <div class="message-avatar">
                             <svg viewBox="0 0 1024 1024" width="28" height="28">
                                 <path d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64z" fill="#4A6CF7"/>
@@ -82,6 +82,7 @@
                             </svg>
                         </div>
                         <div class="message-bubble assistant typing">
+                            <div v-if="toolStatus" class="tool-status">{{ toolStatus }}</div>
                             <span class="typing-dots">
                                 <span class="dot"></span>
                                 <span class="dot"></span>
@@ -125,7 +126,9 @@
                 inputMessage: '',
                 messages: [],
                 loading: false,
-                hasNew: false
+                hasNew: false,
+                streaming: false,   // 是否已开始接收流式 token
+                toolStatus: ''      // 工具调用状态提示
             }
         },
         methods: {
@@ -142,24 +145,68 @@
                 this.scrollToBottom();
 
                 this.loading = true;
+                this.streaming = false;
+                this.toolStatus = '';
                 let history = this.messages.slice(-10).map(m => ({
                     role: m.role,
                     content: m.content
                 }));
 
-                this.$axios.post(this.$httpUrl + '/ai/chat', {
-                    message: msg,
-                    history: history.slice(0, -1)
-                }).then(res => res.data).then(res => {
-                    if (res.code == 200 && res.data && res.data.reply) {
-                        this.messages.push({ role: 'assistant', content: res.data.reply });
-                    } else {
-                        this.messages.push({ role: 'assistant', content: '抱歉，我暂时无法回答您的问题，请稍后再试。' });
-                    }
+                // 先占位一条空的 assistant 消息，流式往里填充
+                this.messages.push({ role: 'assistant', content: '' });
+                let idx = this.messages.length - 1;
+                let self = this;
+
+                // SSE 流式：POST 无法用 EventSource，改用 fetch + ReadableStream 手动解析
+                fetch(this.$aiUrl + '/ai/chat/stream', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: msg, history: history.slice(0, -1) })
+                }).then(res => {
+                    if (!res.ok || !res.body) throw new Error('HTTP ' + res.status);
+                    let reader = res.body.getReader();
+                    let decoder = new TextDecoder('utf-8');
+                    let buf = '';
+
+                    let handleLine = (line) => {
+                        if (!line.startsWith('data:')) return;
+                        let payload = line.slice(5).trim();
+                        if (!payload) return;
+                        let evt;
+                        try { evt = JSON.parse(payload); } catch (e) { return; }
+                        if (evt.type === 'token') {
+                            self.streaming = true;
+                            self.toolStatus = '';
+                            self.messages[idx].content += evt.content;
+                            self.scrollToBottom();
+                        } else if (evt.type === 'tool_start') {
+                            self.toolStatus = '正在查询：' + (evt.label || evt.name) + '...';
+                        } else if (evt.type === 'tool_end') {
+                            self.toolStatus = '';
+                        } else if (evt.type === 'error') {
+                            self.messages[idx].content = evt.content || '抱歉，我暂时无法回答您的问题，请稍后再试。';
+                            self.scrollToBottom();
+                        }
+                    };
+
+                    let pump = () => reader.read().then(({ done, value }) => {
+                        if (done) return;
+                        buf += decoder.decode(value, { stream: true });
+                        let lines = buf.split('\n');
+                        buf = lines.pop();  // 半行留到下一轮
+                        lines.forEach(handleLine);
+                        return pump();
+                    });
+
+                    return pump();
                 }).catch(() => {
-                    this.messages.push({ role: 'assistant', content: '网络异常，请检查网络连接后重试。' });
+                    if (!this.messages[idx].content) {
+                        this.messages[idx].content = '网络异常，请检查网络连接后重试。';
+                    }
                 }).finally(() => {
                     this.loading = false;
+                    this.streaming = false;
+                    this.toolStatus = '';
                     this.scrollToBottom();
                 });
             },
@@ -387,6 +434,11 @@
     }
     .message-bubble.typing {
         padding: 14px 18px;
+    }
+    .tool-status {
+        font-size: 12px;
+        color: #909399;
+        margin-bottom: 6px;
     }
     .typing-dots {
         display: flex;
