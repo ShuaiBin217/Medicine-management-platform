@@ -1,8 +1,8 @@
 <template>
     <div class="manage-container">
         <div class="search-bar">
-            <el-input v-model="name" placeholder="请输入药房名" suffix-icon="el-icon-search" style="width: 200px;"
-                      @keyup.enter.native="loadPost"></el-input>
+            <el-input v-model="name" placeholder="请输入药房名" suffix-icon="Search" style="width: 240px;"
+                      @keyup.enter="loadPost"></el-input>
             <el-button type="primary" style="margin-left: 8px;" @click="loadPost">查询</el-button>
             <el-button type="success" @click="resetParam">重置</el-button>
 
@@ -21,14 +21,16 @@
                 <el-table-column prop="remark" label="备注">
                 </el-table-column>
                 <el-table-column prop="operate" label="操作">
-                    <template slot-scope="scope">
+                    <template #default="scope">
                         <el-button size="small" type="success" @click="mod(scope.row)">编辑</el-button>
                         <el-popconfirm
                                 title="确定删除吗？"
                                 @confirm="del(scope.row.id)"
                                 style="margin-left: 8px;"
                         >
-                            <el-button slot="reference" size="small" type="danger" >删除</el-button>
+                            <template #reference>
+                                <el-button size="small" type="danger">删除</el-button>
+                            </template>
                         </el-popconfirm>
                     </template>
                 </el-table-column>
@@ -46,7 +48,7 @@
 
         <el-dialog
                 title="药房信息"
-                :visible.sync="centerDialogVisible"
+                v-model="centerDialogVisible"
                 width="30%"
                 center>
 
@@ -62,10 +64,12 @@
                     </el-col>
                 </el-form-item>
             </el-form>
-            <span slot="footer" class="dialog-footer">
-    <el-button @click="centerDialogVisible = false">取 消</el-button>
-    <el-button type="primary" @click="save">确 定</el-button>
-  </span>
+            <template #footer>
+                <span class="dialog-footer">
+                    <el-button @click="centerDialogVisible = false">取 消</el-button>
+                    <el-button type="primary" @click="save">确 定</el-button>
+                </span>
+            </template>
         </el-dialog>
     </div>
 </template>
@@ -250,7 +254,7 @@
         border-radius: 10px;
         box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
     }
-    .table-card >>> .el-pagination {
+    .table-card :deep(.el-pagination) {
         display: flex;
         justify-content: center;
         margin-top: 16px;

@@ -64,7 +64,6 @@ html, body {
 
 .el-input__inner:focus {
     border-color: var(--primary-color) !important;
-    box-shadow: 0 0 0 2px rgba(74, 108, 247, 0.15) !important;
 }
 
 .el-select .el-input__inner {

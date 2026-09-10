@@ -1,9 +1,9 @@
 <template>
     <div class="manage-container">
         <div class="search-bar">
-            <el-input v-model="name" placeholder="请输入名字" suffix-icon="el-icon-search" style="width: 200px;"
-                      @keyup.enter.native="loadPost"></el-input>
-            <el-select v-model="sex" filterable placeholder="请选择性别" style="margin-left: 8px;">
+            <el-input v-model="name" placeholder="请输入名字" suffix-icon="Search" style="width: 240px;"
+                      @keyup.enter="loadPost"></el-input>
+            <el-select v-model="sex" filterable placeholder="请选择性别" style="margin-left: 8px; width: 180px;">
                 <el-option
                         v-for="item in sexs"
                         :key="item.value"
@@ -31,14 +31,14 @@
                 <el-table-column prop="age" label="年龄" width="80">
                 </el-table-column>
                 <el-table-column prop="sex" label="性别" width="80">
-                    <template slot-scope="scope">
+                    <template #default="scope">
                         <el-tag
                                 :type="scope.row.sex === 1 ? 'primary' : 'success'"
                                 disable-transitions>{{scope.row.sex === 1 ? '男' : '女'}}</el-tag>
                     </template>
                 </el-table-column>
                 <el-table-column prop="roleId" label="角色" width="120">
-                    <template slot-scope="scope">
+                    <template #default="scope">
                         <el-tag
                                 :type="scope.row.roleId === 0 ? 'danger' : (scope.row.roleId === 1 ? 'primary' : 'success')"
                                 disable-transitions>{{scope.row.roleId === 0 ? '超级管理员' :
@@ -48,14 +48,16 @@
                 <el-table-column prop="phone" label="电话" width="180">
                 </el-table-column>
                 <el-table-column prop="operate" label="操作">
-                    <template slot-scope="scope">
+                    <template #default="scope">
                         <el-button size="small" type="success" @click="mod(scope.row)">编辑</el-button>
                         <el-popconfirm
                                 title="确定删除吗？"
                                 @confirm="del(scope.row.id)"
                                 style="margin-left: 8px;"
                         >
-                            <el-button slot="reference" size="small" type="danger" >删除</el-button>
+                            <template #reference>
+                                <el-button size="small" type="danger">删除</el-button>
+                            </template>
                         </el-popconfirm>
                     </template>
                 </el-table-column>
@@ -73,7 +75,7 @@
 
         <el-dialog
                 title="用户信息"
-                :visible.sync="centerDialogVisible"
+                v-model="centerDialogVisible"
                 width="30%"
                 center>
 
@@ -110,10 +112,12 @@
                     </el-col>
                 </el-form-item>
             </el-form>
-            <span slot="footer" class="dialog-footer">
-    <el-button @click="centerDialogVisible = false">取 消</el-button>
-    <el-button type="primary" @click="save">确 定</el-button>
-  </span>
+            <template #footer>
+                <span class="dialog-footer">
+                    <el-button @click="centerDialogVisible = false">取 消</el-button>
+                    <el-button type="primary" @click="save">确 定</el-button>
+                </span>
+            </template>
         </el-dialog>
     </div>
 </template>
@@ -369,7 +373,7 @@
         border-radius: 10px;
         box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
     }
-    .table-card >>> .el-pagination {
+    .table-card :deep(.el-pagination) {
         display: flex;
         justify-content: center;
         margin-top: 16px;

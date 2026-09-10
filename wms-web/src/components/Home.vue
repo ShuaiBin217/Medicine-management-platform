@@ -7,33 +7,33 @@
             </div>
         </div>
         <div class="home-card">
-            <el-descriptions  title="个人信息" :column="2" size="medium" border class="user-descriptions">
+            <el-descriptions  title="个人信息" :column="2" size="large" border class="user-descriptions">
                 <el-descriptions-item>
-                    <template slot="label">
-                        <i class="el-icon-s-custom"></i>
+                    <template #label>
+                        <el-icon><User/></el-icon>
                         账号
                     </template>
                     {{user.no}}
                 </el-descriptions-item>
                 <el-descriptions-item>
-                    <template slot="label">
-                        <i class="el-icon-mobile-phone"></i>
+                    <template #label>
+                        <el-icon><Iphone/></el-icon>
                         电话
                     </template>
                     {{user.phone}}
                 </el-descriptions-item>
                 <el-descriptions-item>
-                    <template slot="label">
-                        <i class="el-icon-location-outline"></i>
+                    <template #label>
+                        <el-icon><Location/></el-icon>
                         性别
                     </template>
                     <el-tag
                             :type="user.sex === '1' ? 'primary' : 'danger'"
-                            disable-transitions><i :class="user.sex==1?'el-icon-male':'el-icon-female'"></i>{{user.sex==1?"男":"女"}}</el-tag>
+                            disable-transitions><el-icon style="vertical-align: -2px;"><Male v-if="user.sex==1"/><Female v-else/></el-icon>{{user.sex==1?"男":"女"}}</el-tag>
                 </el-descriptions-item>
                 <el-descriptions-item>
-                    <template slot="label">
-                        <i class="el-icon-tickets"></i>
+                    <template #label>
+                        <el-icon><Tickets/></el-icon>
                         角色
                     </template>
                     <el-tag
@@ -48,14 +48,14 @@
 
         <div class="dashboard-section">
             <h2 class="dashboard-title">
-                <i class="el-icon-data-analysis"></i>
+                <el-icon style="color:#4A6CF7;font-size:22px;"><DataAnalysis/></el-icon>
                 库存仪表盘
             </h2>
 
             <div class="stat-cards">
                 <div class="stat-card stat-card--blue">
                     <div class="stat-card__icon">
-                        <i class="el-icon-goods"></i>
+                        <el-icon><Goods/></el-icon>
                     </div>
                     <div class="stat-card__info">
                         <span class="stat-card__value">{{ totalGoods }}</span>
@@ -64,7 +64,7 @@
                 </div>
                 <div class="stat-card stat-card--green">
                     <div class="stat-card__icon">
-                        <i class="el-icon-office-building"></i>
+                        <el-icon><OfficeBuilding/></el-icon>
                     </div>
                     <div class="stat-card__info">
                         <span class="stat-card__value">{{ storageData.length }}</span>
@@ -73,7 +73,7 @@
                 </div>
                 <div class="stat-card stat-card--purple">
                     <div class="stat-card__icon">
-                        <i class="el-icon-collection-tag"></i>
+                        <el-icon><CollectionTag/></el-icon>
                     </div>
                     <div class="stat-card__info">
                         <span class="stat-card__value">{{ goodstypeData.length }}</span>
@@ -82,7 +82,7 @@
                 </div>
                 <div class="stat-card stat-card--orange">
                     <div class="stat-card__icon">
-                        <i class="el-icon-warning-outline"></i>
+                        <el-icon><Warning/></el-icon>
                     </div>
                     <div class="stat-card__info">
                         <span class="stat-card__value">{{ lowStockCount }}</span>
@@ -113,17 +113,17 @@
                     max-height="300">
                     <el-table-column prop="name" label="药品名" width="200"></el-table-column>
                     <el-table-column label="药房" width="180">
-                        <template slot-scope="scope">
+                        <template #default="scope">
                             {{ getStorageName(scope.row.storage) }}
                         </template>
                     </el-table-column>
                     <el-table-column label="分类" width="180">
-                        <template slot-scope="scope">
+                        <template #default="scope">
                             {{ getGoodstypeName(scope.row.goodstype) }}
                         </template>
                     </el-table-column>
                     <el-table-column prop="count" label="库存数量" width="120">
-                        <template slot-scope="scope">
+                        <template #default="scope">
                             <el-tag :type="scope.row.count <= 5 ? 'danger' : 'warning'" size="small">
                                 {{ scope.row.count }}
                             </el-tag>
@@ -347,7 +347,7 @@
             this.loadGoods();
             window.addEventListener('resize', this.handleResize);
         },
-        beforeDestroy() {
+        beforeUnmount() {
             window.removeEventListener('resize', this.handleResize);
             if (this.storageChart) {
                 this.storageChart.dispose();

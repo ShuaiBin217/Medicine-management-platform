@@ -1,9 +1,9 @@
 <template>
     <div class="manage-container">
         <div class="search-bar">
-            <el-input v-model="name" placeholder="请输入药品名" suffix-icon="el-icon-search" style="width: 200px;"
-                      @keyup.enter.native="loadPost"></el-input>
-            <el-select v-model="storage" placeholder="请选择药房" style="margin-left: 8px;">
+            <el-input v-model="name" placeholder="请输入药品名" suffix-icon="Search" style="width: 240px;"
+                      @keyup.enter="loadPost"></el-input>
+            <el-select v-model="storage" placeholder="请选择药房" style="margin-left: 8px; width: 180px;">
                 <el-option
                         v-for="item in storageData"
                         :key="item.id"
@@ -11,7 +11,7 @@
                         :value="item.id">
                 </el-option>
             </el-select>
-            <el-select v-model="goodstype" placeholder="请选择药品分类" style="margin-left: 8px;">
+            <el-select v-model="goodstype" placeholder="请选择药品分类" style="margin-left: 8px; width: 180px;">
                 <el-option
                         v-for="item in goodstypeData"
                         :key="item.id"
@@ -197,7 +197,7 @@
         border-radius: 10px;
         box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
     }
-    .table-card >>> .el-pagination {
+    .table-card :deep(.el-pagination) {
         display: flex;
         justify-content: center;
         margin-top: 16px;

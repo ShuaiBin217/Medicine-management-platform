@@ -253,7 +253,7 @@
 
             <div class="login-card">
                 <div class="login-card__logo">
-                    <i class="el-icon-first-aid-kit"></i>
+                    <el-icon><FirstAidKit/></el-icon>
                 </div>
                 <h1 class="login-card__title">药品管理平台</h1>
                 <p class="login-card__subtitle">欢迎回来，请登录您的账号</p>
@@ -261,15 +261,15 @@
                          :rules="rules" ref="loginForm" class="login-form">
                     <el-form-item prop="no">
                         <el-input type="text" v-model="loginForm.no"
-                                  autocomplete="off" size="medium" prefix-icon="el-icon-user"
+                                  autocomplete="off" prefix-icon="User"
                                   placeholder="请输入账号"
                                   @focus="bubbleText='输入账号就能进来啦~'"
                                   class="login-input"></el-input>
                     </el-form-item>
                     <el-form-item prop="password">
                         <el-input type="password" v-model="loginForm.password"
-                                  show-password autocomplete="off" size="medium" prefix-icon="el-icon-lock"
-                                  placeholder="请输入密码" @keyup.enter.native="confirm"
+                                  show-password autocomplete="off" prefix-icon="Lock"
+                                  placeholder="请输入密码" @keyup.enter="confirm"
                                   @focus="bubbleText='放心，密码我不会看的~'"
                                   class="login-input"></el-input>
                     </el-form-item>
@@ -286,6 +286,8 @@
 </template>
 
 <script>
+    import { useMenuStore } from '../stores/menu'
+
     export default {
         name: "Login",
         data() {
@@ -329,7 +331,7 @@
                         this.$axios.post(this.$httpUrl + '/user/login', this.loginForm).then(res => res.data).then(res => {
                             if (res.code == 200) {
                                 sessionStorage.setItem("CurUser", JSON.stringify(res.data.user));
-                                this.$store.commit("setMenu", res.data.menu);
+                                useMenuStore().setMenu(res.data.menu);
                                 this.$router.replace('/Index');
                             } else {
                                 this.confirm_disabled = false;
@@ -576,7 +578,7 @@
         margin-bottom: 20px;
     }
 
-    .login-input >>> .el-input__inner {
+    .login-input :deep(.el-input__inner) {
         height: 44px;
         border-radius: 10px !important;
         border-color: #E2E8F0 !important;
@@ -584,12 +586,11 @@
         transition: all 0.2s ease;
     }
 
-    .login-input >>> .el-input__inner:focus {
+    .login-input :deep(.el-input__inner:focus) {
         border-color: #15803D !important;
-        box-shadow: 0 0 0 3px rgba(21, 128, 61, 0.1) !important;
     }
 
-    .login-input >>> .el-input__prefix {
+    .login-input :deep(.el-input__prefix) {
         color: #94A3B8;
     }
 

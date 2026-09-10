@@ -1,7 +1,9 @@
 <template>
     <div class="header-container">
         <div class="header-left">
-            <i :class="icon" class="collapse-icon" @click="collapse"></i>
+            <div class="collapse-icon" @click="collapse">
+                <el-icon><component :is="icon"/></el-icon>
+            </div>
         </div>
         <div class="header-center">
             <span class="header-title">药品管理系统</span>
@@ -9,18 +11,20 @@
         <div class="header-right">
             <el-dropdown>
                 <span class="user-info">
-                    <i class="el-icon-user-solid" style="margin-right: 6px; font-size: 16px;"></i>
+                    <el-icon style="margin-right: 6px; font-size: 16px;"><UserFilled/></el-icon>
                     {{user.name}}
-                    <i class="el-icon-arrow-down" style="margin-left: 4px; font-size: 12px;"></i>
+                    <el-icon style="margin-left: 4px; font-size: 12px;"><ArrowDown/></el-icon>
                 </span>
-                <el-dropdown-menu slot="dropdown">
-                    <el-dropdown-item @click.native="toUser">
-                        <i class="el-icon-s-custom" style="margin-right: 8px;"></i>个人中心
-                    </el-dropdown-item>
-                    <el-dropdown-item @click.native="logout" divided>
-                        <i class="el-icon-switch-button" style="margin-right: 8px;"></i>退出登录
-                    </el-dropdown-item>
-                </el-dropdown-menu>
+                <template #dropdown>
+                    <el-dropdown-menu>
+                        <el-dropdown-item @click="toUser">
+                            <el-icon style="margin-right: 8px;"><User/></el-icon>个人中心
+                        </el-dropdown-item>
+                        <el-dropdown-item @click="logout" divided>
+                            <el-icon style="margin-right: 8px;"><SwitchButton/></el-icon>退出登录
+                        </el-dropdown-item>
+                    </el-dropdown-menu>
+                </template>
             </el-dropdown>
         </div>
     </div>
@@ -38,6 +42,10 @@
             icon:String
         },
         methods:{
+            handleCommand(cmd){
+                if (cmd === 'toUser') this.toUser()
+                else if (cmd === 'logout') this.logout()
+            },
             toUser(){
                 console.log('to_user')
 
@@ -93,11 +101,14 @@
         align-items: center;
     }
     .collapse-icon {
-        font-size: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
         cursor: pointer;
         color: #4A5568;
         transition: all 0.25s ease;
-        padding: 6px;
+        padding: 10px;
         border-radius: 8px;
     }
     .collapse-icon:hover {

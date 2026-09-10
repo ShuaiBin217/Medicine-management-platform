@@ -2,50 +2,35 @@
   "name": "wms-web",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=20.19"
+  },
   "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint ."
   },
   "dependencies": {
+    "@element-plus/icons-vue": "^2.3.2",
     "axios": "^0.27.2",
-    "core-js": "^3.6.5",
     "echarts": "^5.6.0",
-    "element-ui": "^2.15.9",
-    "vue": "^2.6.11",
-    "vue-router": "^3.5.4",
-    "vuex": "^3.0.0"
+    "element-plus": "^2.14.5",
+    "pinia": "^3.0.3",
+    "vue": "^3.5.42",
+    "vue-router": "^5.3.1"
   },
   "devDependencies": {
-    "@vue/cli-plugin-babel": "~4.5.15",
-    "@vue/cli-plugin-eslint": "~4.5.15",
-    "@vue/cli-service": "~4.5.15",
-    "babel-eslint": "^10.1.0",
+    "@eslint/js": "^9.20.0",
+    "@vitejs/plugin-vue": "^6.0.8",
     "docx": "^9.7.1",
-    "eslint": "^6.7.2",
-    "eslint-plugin-vue": "^6.2.2",
+    "eslint": "^9.20.0",
+    "eslint-plugin-vue": "^10.10.0",
+    "globals": "^16.0.0",
     "mammoth": "^1.12.0",
     "pdf-parse": "^2.2.2",
     "pdf2json": "^3.1.4",
-    "vue-template-compiler": "^2.6.11"
-  },
-  "eslintConfig": {
-    "root": true,
-    "env": {
-      "node": true
-    },
-    "extends": [
-      "plugin:vue/essential",
-      "eslint:recommended"
-    ],
-    "parserOptions": {
-      "parser": "babel-eslint"
-    },
-    "rules": {}
-  },
-  "browserslist": [
-    "> 1%",
-    "last 2 versions",
-    "not dead"
-  ]
+    "vite": "^7.0.0",
+    "vue-eslint-parser": "^10.0.0"
+  }
 }

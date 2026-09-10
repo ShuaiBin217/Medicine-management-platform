@@ -1,5 +1,14 @@
+import { createRouter, createWebHistory } from 'vue-router';
 
-import VueRouter from 'vue-router';
+// Vite 下的变量动态导入：key 为含扩展名的相对路径（'../components/goods/GoodsManage.vue'）
+export const modules = import.meta.glob('../components/**/*.vue');
+
+const FALLBACK = () => import('../components/Index.vue');
+
+export function resolveComponent(menucomponent) {
+    const key = '../components/' + menucomponent + '.vue';
+    return modules[key] || modules['../components/' + menucomponent] || FALLBACK;
+}
 
 const routes = [
     {
@@ -21,52 +30,51 @@ const routes = [
                 },
                 component:()=>import('../components/Home')
             },
-            /*{
-                path:'/Admin',
-                name:'admin',
-                meta:{
-                    title:'管理员管理'
-                },
-                component:()=>import('../components/admin/AdminManage.vue')
-            },
-            {
-                path:'/User',
-                name:'user',
-                meta:{
-                    title:'用户管理'
-                },
-                component:()=>import('../components/user/UserManage.vue')
-            },*/
         ]
     }
 ]
 
-const router = new VueRouter({
-    mode:'history',
+const router = createRouter({
+    history: createWebHistory(),
     routes
 })
 
-export function resetRouter() {
-    router.matcher = new VueRouter({
-        mode:'history',
-        routes: []
-    }).matcher
+// 动态路由记录：name 用于 reset 时 removeRoute，path 保留原按路径去重的语义
+const addedNames = new Set()
+const addedPaths = new Set()
+
+export function addDynamicRoutes(menuList) {
+    menuList.forEach(menu=>{
+        let path = '/'+menu.menuclick
+        if(!addedPaths.has(path)){
+            router.addRoute('index', {
+                path: path,
+                name: menu.menuname,
+                meta: {
+                    title: menu.menuname
+                },
+                component: resolveComponent(menu.menucomponent)
+            })
+            addedNames.add(menu.menuname)
+            addedPaths.add(path)
+        }
+    })
 }
-router.beforeEach((to, from, next) => {
+
+export function resetRouter() {
+    addedNames.forEach(n => {
+        if (router.hasRoute(n)) router.removeRoute(n)
+    })
+    addedNames.clear()
+    addedPaths.clear()
+}
+
+router.beforeEach((to) => {
     let user = sessionStorage.getItem('CurUser')
     if (to.path === '/') {
-        next()
-    } else {
-        if (user) {
-            next()
-        } else {
-            next({ path: '/' })
-        }
+        return true
     }
+    return user ? true : { path: '/' }
 })
 
-const VueRouterPush = VueRouter.prototype.push
-VueRouter.prototype.push = function push (to) {
-    return VueRouterPush.call(this, to).catch(err => err)
-}
-export  default router;
+export default router;

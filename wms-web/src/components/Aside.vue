@@ -10,13 +10,13 @@
             router
     >
        <el-menu-item index="/Home">
-           <i class="el-icon-s-home"></i>
-           <span slot="title">首页</span>
+           <el-icon><HomeFilled/></el-icon>
+           <template #title>首页</template>
        </el-menu-item>
 
         <el-menu-item :index="'/'+item.menuclick" v-for="(item,i) in menu" :key="i">
-            <i :class="item.menuicon"></i>
-            <span slot="title">{{item.menuname}}</span>
+            <FIcon :name="item.menuicon"/>
+            <template #title>{{item.menuname}}</template>
         </el-menu-item>
 
 
@@ -24,29 +24,21 @@
 </template>
 
 <script>
+    import { useMenuStore } from '../stores/menu'
+    import FIcon from './FIcon'
+
     export default {
         name: "Aside",
+        components: {FIcon},
         data(){
             return {
                 //isCollapse:false
-
-               /* menu:[
-                    {
-                        menuClick:'Admin',
-                        menuName:'管路员管理',
-                        menuIcon:'el-icon-s-custom'
-                    },{
-                        menuClick:'User',
-                        menuName:'用户管理',
-                        menuIcon:'el-icon-user-solid'
-                    }
-                ]*/
             }
         },
         computed:{
             "menu":{
                 get(){
-                    return this.$store.state.menu
+                    return useMenuStore().menu
                 }
             }
         },
@@ -77,8 +69,10 @@
         color: #FFFFFF !important;
         box-shadow: 0 4px 12px rgba(74, 108, 247, 0.35);
     }
-    .aside-menu .el-menu-item i {
+    .aside-menu .el-menu-item :deep(.el-icon) {
         color: inherit;
         margin-right: 8px;
+        font-size: 18px;
+        vertical-align: middle;
     }
 </style>

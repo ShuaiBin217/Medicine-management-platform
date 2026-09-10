@@ -29,7 +29,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 16
+          node-version: 22
           cache: npm
           cache-dependency-path: wms-web/package-lock.json
 
@@ -39,8 +39,8 @@ jobs:
       - name: Build
         run: cd wms-web && npm run build
         env:
-          VUE_APP_API_URL: ${{ secrets.VUE_APP_API_URL }}
-          VUE_APP_AI_URL: ${{ secrets.VUE_APP_AI_URL }}
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
+          VITE_AI_URL: ${{ secrets.VITE_AI_URL }}
 
       - name: Setup Pages
         uses: actions/configure-pages@v4

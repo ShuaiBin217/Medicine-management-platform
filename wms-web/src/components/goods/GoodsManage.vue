@@ -1,9 +1,9 @@
 <template>
     <div class="manage-container">
         <div class="search-bar">
-            <el-input v-model="name" placeholder="请输入药品名" suffix-icon="el-icon-search" style="width: 200px;"
-                      @keyup.enter.native="loadPost"></el-input>
-            <el-select v-model="storage" placeholder="请选择药房" style="margin-left: 8px;">
+            <el-input v-model="name" placeholder="请输入药品名" suffix-icon="Search" style="width: 240px;"
+                      @keyup.enter="loadPost"></el-input>
+            <el-select v-model="storage" placeholder="请选择药房" style="margin-left: 8px; width: 180px;">
                 <el-option
                         v-for="item in storageData"
                         :key="item.id"
@@ -11,7 +11,7 @@
                         :value="item.id">
                 </el-option>
             </el-select>
-            <el-select v-model="goodstype" placeholder="请选择药品分类" style="margin-left: 8px;">
+            <el-select v-model="goodstype" placeholder="请选择药品分类" style="margin-left: 8px; width: 180px;">
                 <el-option
                         v-for="item in goodstypeData"
                         :key="item.id"
@@ -48,14 +48,16 @@
                 <el-table-column prop="remark" label="备注">
                 </el-table-column>
                 <el-table-column prop="operate" label="操作" v-if="user.roleId!=2">
-                    <template slot-scope="scope">
+                    <template #default="scope">
                         <el-button size="small" type="success" @click="mod(scope.row)">编辑</el-button>
                         <el-popconfirm
                                 title="确定删除吗？"
                                 @confirm="del(scope.row.id)"
                                 style="margin-left: 8px;"
                         >
-                            <el-button slot="reference" size="small" type="danger" >删除</el-button>
+                            <template #reference>
+                                <el-button size="small" type="danger">删除</el-button>
+                            </template>
                         </el-popconfirm>
                     </template>
                 </el-table-column>
@@ -73,7 +75,7 @@
 
         <el-dialog
                 title="药品维护"
-                :visible.sync="centerDialogVisible"
+                v-model="centerDialogVisible"
                 width="30%"
                 center>
 
@@ -119,28 +121,32 @@
                     </el-col>
                 </el-form-item>
             </el-form>
-            <span slot="footer" class="dialog-footer">
-    <el-button @click="centerDialogVisible = false">取 消</el-button>
-    <el-button type="primary" @click="save">确 定</el-button>
-  </span>
+            <template #footer>
+                <span class="dialog-footer">
+                    <el-button @click="centerDialogVisible = false">取 消</el-button>
+                    <el-button type="primary" @click="save">确 定</el-button>
+                </span>
+            </template>
         </el-dialog>
 
         <el-dialog
                 title="药品流转"
-                :visible.sync="inDialogVisible"
+                v-model="inDialogVisible"
                 width="30%"
                 center>
 
             <el-dialog
                     width="75%"
                     title="用户选择"
-                    :visible.sync="innerVisible"
+                    v-model="innerVisible"
                     append-to-body>
                 <SelectUser @doSelectUser="doSelectUser"></SelectUser>
-                <span slot="footer" class="dialog-footer">
-                    <el-button @click="innerVisible = false">取 消</el-button>
-                    <el-button type="primary" @click="confirmUser">确 定</el-button>
-                  </span>
+                <template #footer>
+                    <span class="dialog-footer">
+                        <el-button @click="innerVisible = false">取 消</el-button>
+                        <el-button type="primary" @click="confirmUser">确 定</el-button>
+                    </span>
+                </template>
             </el-dialog>
 
             <el-form ref="form1" :rules="rules1" :model="form1" label-width="80px">
@@ -151,7 +157,7 @@
                 </el-form-item>
                 <el-form-item :label="form1.action==='1'?'经办人':'取药人'">
                     <el-col :span="20">
-                        <el-input v-model="form1.username" readonly @click.native="form1.action==='2'?selectUser():null"></el-input>
+                        <el-input v-model="form1.username" readonly @click="form1.action==='2'?selectUser():null"></el-input>
                     </el-col>
                     <el-col :span="4" v-if="form1.action==='2'">
                         <el-button type="primary" @click="selectUser" style="margin-left: 8px;">选择用户</el-button>
@@ -168,10 +174,12 @@
                     </el-col>
                 </el-form-item>
             </el-form>
-            <span slot="footer" class="dialog-footer">
-    <el-button @click="inDialogVisible = false">取 消</el-button>
-    <el-button type="primary" @click="doInGoods">确 定</el-button>
-  </span>
+            <template #footer>
+                <span class="dialog-footer">
+                    <el-button @click="inDialogVisible = false">取 消</el-button>
+                    <el-button type="primary" @click="doInGoods">确 定</el-button>
+                </span>
+            </template>
         </el-dialog>
     </div>
 </template>
@@ -528,16 +536,16 @@
         border-radius: 10px;
         box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
     }
-    .table-card >>> .el-pagination {
+    .table-card :deep(.el-pagination) {
         display: flex;
         justify-content: center;
         margin-top: 16px;
     }
-    .table-card >>> .el-table__body tr.current-row > td {
+    .table-card :deep(.el-table__body tr.current-row > td) {
         background-color: #4A6CF7 !important;
         color: #FFFFFF !important;
     }
-    .table-card >>> .el-table__body tr.current-row > td .el-tag {
+    .table-card :deep(.el-table__body tr.current-row > td .el-tag) {
         background-color: rgba(255, 255, 255, 0.2) !important;
         color: #FFFFFF !important;
         border-color: rgba(255, 255, 255, 0.3) !important;

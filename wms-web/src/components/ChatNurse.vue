@@ -14,10 +14,10 @@
         </div>
 
         <el-dialog
-                :visible.sync="chatVisible"
+                v-model="chatVisible"
                 width="560px"
                 :show-close="false"
-                custom-class="chat-nurse-dialog"
+                class="chat-nurse-dialog"
                 append-to-body
                 :modal="false"
                 top="5vh"
@@ -34,11 +34,11 @@
                         <span class="chat-title">智能小药 · 药品问答助手</span>
                     </div>
                     <div class="chat-header-right">
-                        <el-button type="text" size="mini" @click="clearHistory" title="清空对话">
-                            <i class="el-icon-delete" style="font-size:16px;color:#909399;"></i>
+                        <el-button link size="small" @click="clearHistory" title="清空对话">
+                            <el-icon style="font-size:16px;color:#909399;"><Delete/></el-icon>
                         </el-button>
-                        <el-button type="text" size="mini" @click="chatVisible = false" title="关闭">
-                            <i class="el-icon-close" style="font-size:16px;color:#909399;"></i>
+                        <el-button link size="small" @click="chatVisible = false" title="关闭">
+                            <el-icon style="font-size:16px;color:#909399;"><Close/></el-icon>
                         </el-button>
                     </div>
                 </div>
@@ -96,7 +96,7 @@
                     <el-input
                             v-model="inputMessage"
                             placeholder="请输入您的问题..."
-                            @keyup.enter.native="sendMessage"
+                            @keyup.enter="sendMessage"
                             :disabled="loading"
                             size="small"
                             class="chat-input"
@@ -104,7 +104,7 @@
                     </el-input>
                     <el-button
                             type="primary"
-                            icon="el-icon-s-promotion"
+                            icon="Promotion"
                             circle
                             size="small"
                             @click="sendMessage"
@@ -473,11 +473,11 @@
     .chat-input {
         flex: 1;
     }
-    .chat-input >>> .el-input__inner {
+    .chat-input :deep(.el-input__inner) {
         border-radius: 20px;
         border-color: #DCDFE6;
     }
-    .chat-input >>> .el-input__inner:focus {
+    .chat-input :deep(.el-input__inner:focus) {
         border-color: #4A6CF7;
     }
     .send-btn {
