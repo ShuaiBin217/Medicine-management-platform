@@ -68,6 +68,10 @@ public class UserController {
 
         if(list.size()>0){
             User user1 = (User)list.get(0);
+            // 校验账号是否被停用
+            if(user1.getIsvalid() == null || !"Y".equals(user1.getIsvalid())){
+                return Result.fail("该账号已被停用，请联系管理员");
+            }
             List menuList = menuService.lambdaQuery().like(Menu::getMenuright,user1.getRoleId()).list();
             HashMap res = new HashMap();
             res.put("user",user1);
@@ -91,6 +95,23 @@ public class UserController {
     @GetMapping("/delete")
     public boolean delete(Integer id){
         return userService.removeById(id);
+    }
+
+    //停用/启用账号
+    @GetMapping("/toggleValid")
+    public Result toggleValid(@RequestParam Integer id){
+        User user = userService.getById(id);
+        if(user == null){
+            return Result.fail("用户不存在");
+        }
+        // 超级管理员不允许停用
+        if(user.getRoleId() != null && user.getRoleId() == 0){
+            return Result.fail("超级管理员不允许停用");
+        }
+        String newValid = "Y".equals(user.getIsvalid()) ? "N" : "Y";
+        user.setIsvalid(newValid);
+        userService.updateById(user);
+        return Result.suc();
     }
 
     //查询（模糊、匹配）

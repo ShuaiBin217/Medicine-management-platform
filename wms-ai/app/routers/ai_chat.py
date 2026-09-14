@@ -52,8 +52,9 @@ def chat(body: dict) -> Result:
         redis.set(cache_key, reply, TTL_AI_CHAT)
         return Result.suc({"reply": reply})
     except Exception as e:
-        # 对齐 Java：异常仍返回 200，reply 含错误信息
-        return Result.suc({"reply": f"抱歉，智能助手暂时无法回答，请稍后再试。错误信息：{e}"})
+        # 对齐 Java：异常仍返回 200；真实错误只记服务端日志，不下发用户
+        print(f"[AI] 非流式对话异常: {e!r}")
+        return Result.suc({"reply": "抱歉，智能助手暂时无法回答，请稍后再试。"})
 
 
 @router.post("/chat/stream")
@@ -104,7 +105,8 @@ async def chat_stream(body: dict):
                 redis.set(cache_key, reply, TTL_AI_CHAT)
             yield _sse({"type": "done"})
         except Exception as e:
-            yield _sse({"type": "error", "content": f"抱歉，智能助手暂时无法回答，请稍后再试。错误信息：{e}"})
+            print(f"[AI] 流式对话异常: {e!r}")
+            yield _sse({"type": "error", "content": "抱歉，智能助手暂时无法回答，请稍后再试。"})
             yield _sse({"type": "done"})
 
     return StreamingResponse(

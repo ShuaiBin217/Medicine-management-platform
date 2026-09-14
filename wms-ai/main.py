@@ -1,4 +1,3 @@
-"""FastAPI 入口：lifespan 加载知识库（对齐 Java @PostConstruct autoLoad）+ 挂载路由。"""
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -12,7 +11,6 @@ from app.state import AppState
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """启动时初始化知识库，等价 Java @PostConstruct init + autoLoad。"""
     settings = get_settings()
     kb = KnowledgeBaseService(settings)
     kb.init()

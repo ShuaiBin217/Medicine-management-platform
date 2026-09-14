@@ -47,9 +47,15 @@
                 </el-table-column>
                 <el-table-column prop="phone" label="电话" width="180">
                 </el-table-column>
-                <el-table-column prop="operate" label="操作">
+                <el-table-column prop="operate" label="操作" min-width="220">
                     <template #default="scope">
                         <el-button size="small" type="success" @click="mod(scope.row)">编辑</el-button>
+                        <el-button
+                            size="small"
+                            :type="scope.row.isvalid === 'Y' ? 'warning' : 'primary'"
+                            style="margin-left: 8px;"
+                            @click="toggleValid(scope.row)"
+                        >{{ scope.row.isvalid === 'Y' ? '停用' : '启用' }}</el-button>
                         <el-popconfirm
                                 title="确定删除吗？"
                                 @confirm="del(scope.row.id)"
@@ -203,6 +209,16 @@
         methods:{
             resetForm() {
                 this.$refs.form.resetFields();
+            },
+            toggleValid(row){
+                this.$axios.get(this.$httpUrl+'/user/toggleValid?id='+row.id).then(res=>res.data).then(res=>{
+                    if(res.code==200){
+                        this.$message({message:'操作成功！',type:'success'});
+                        this.loadPost();
+                    }else{
+                        this.$message({message:res.msg||'操作失败！',type:'error'});
+                    }
+                })
             },
             del(id){
                 console.log(id)

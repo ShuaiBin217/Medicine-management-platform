@@ -21,8 +21,8 @@ class WmsClient:
     def list_all_goods(self) -> list[dict]:
         """/goods 只有 listPage，用大 pageSize 取全量。
 
-        字段：{id, name, storage(分类id), goodsType(分类id), count, remark}
-        注意 Java 序列化为驼峰 goodsType，Python 取值用 'goodsType'。
+        字段：{id, name, storage(药房id), goodstype(分类id，小写非驼峰), count, remark}
+        注意：后端 JSON 实际返回小写 goodstype，Python 取值必须用 'goodstype'。
         """
         resp = self.client.post(
             f"{self.base}/goods/listPage",

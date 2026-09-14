@@ -335,9 +335,10 @@
                                 this.$router.replace('/Index');
                             } else {
                                 this.confirm_disabled = false;
-                                this.bubbleText = '哎呀，账号或密码错了~';
+                                const msg = res.msg || '用户名或密码错误！';
+                                this.bubbleText = msg;
                                 this.$message({
-                                    message: '用户名或密码错误！',
+                                    message: msg,
                                     type: 'error'
                                 });
                                 return false;

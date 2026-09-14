@@ -236,8 +236,8 @@
                 let data = this.storageChartData;
                 this.storageChart.setOption({
                     tooltip: {
-                        trigger: 'axis',
-                        axisPointer: { type: 'shadow' }
+                        trigger: 'item',
+                        formatter: '{c}'
                     },
                     grid: {
                         left: '3%',
@@ -264,6 +264,7 @@
                         axisTick: { show: false }
                     },
                     series: [{
+                        name: '库存数量',
                         type: 'bar',
                         data: data.map(d => d.value),
                         barWidth: '40%',
@@ -295,7 +296,7 @@
                 this.typeChart.setOption({
                     tooltip: {
                         trigger: 'item',
-                        formatter: '{b}: {c} ({d}%)'
+                        formatter: '{b}<br/>{c} ({d}%)'
                     },
                     legend: {
                         orient: 'vertical',
@@ -318,11 +319,9 @@
                         },
                         label: { show: false },
                         emphasis: {
-                            label: {
-                                show: true,
-                                fontSize: 14,
-                                fontWeight: 'bold'
-                            }
+                            scale: true,
+                            scaleSize: 5,
+                            label: { show: false }
                         },
                         labelLine: { show: false },
                         data: data.map((d, i) => ({

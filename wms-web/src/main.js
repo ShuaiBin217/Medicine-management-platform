@@ -13,10 +13,11 @@ import './assets/global.css'
 
 const app = createApp(App)
 
-// 全局属性：语义与 Vue 2 版逐字对齐（$aiUrl 的 != null 判断必须保留，空串=生产走 Nginx 同源代理）
+// 全局属性：$aiUrl 空串 = 走同源代理（开发由 vite.config.js proxy、生产由 Nginx 转发到 AI 服务）
 app.config.globalProperties.$axios = axios
 app.config.globalProperties.$httpUrl = import.meta.env.VITE_API_URL || 'http://localhost:8090'
-app.config.globalProperties.$aiUrl = import.meta.env.VITE_AI_URL != null ? import.meta.env.VITE_AI_URL : 'http://localhost:8091'
+const rawAiUrl = import.meta.env.VITE_AI_URL
+app.config.globalProperties.$aiUrl = (rawAiUrl != null && rawAiUrl.trim() !== '') ? rawAiUrl : ''
 
 const pinia = createPinia()
 app.use(pinia)

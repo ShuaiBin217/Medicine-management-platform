@@ -61,7 +61,7 @@
                         </div>
                     </div>
 
-                    <div v-for="(msg, index) in messages" :key="index"
+                    <div v-for="(msg, index) in displayMessages" :key="index"
                          :class="['chat-message', msg.role === 'user' ? 'message-user' : 'message-assistant']">
                         <div class="message-avatar" v-if="msg.role === 'assistant'">
                             <svg viewBox="0 0 1024 1024" width="28" height="28">
@@ -129,6 +129,18 @@
                 hasNew: false,
                 streaming: false,   // 是否已开始接收流式 token
                 toolStatus: ''      // 工具调用状态提示
+            }
+        },
+        computed: {
+            // 思考等待期隐藏末尾的空 assistant 占位，避免「占位头像 + 加载气泡头像」双头像
+            displayMessages() {
+                if (this.loading && !this.streaming && this.messages.length) {
+                    const last = this.messages[this.messages.length - 1];
+                    if (last.role === 'assistant' && !last.content) {
+                        return this.messages.slice(0, -1);
+                    }
+                }
+                return this.messages;
             }
         },
         methods: {

@@ -30,11 +30,14 @@ from app.services.wms_client import get_wms
 
 
 def _format_goods_line(g: dict, type_map: dict[int, str], storage_map: dict[int, str]) -> str:
-    """格式化单条药品，对齐 WmsTools.java 第 53-58 行。"""
+    """格式化单条药品，对齐 WmsTools.java 第 53-58 行。
+
+    注意：后端 /goods/listPage 返回的 JSON 字段为小写 goodstype（非驼峰）。
+    """
     remark = g.get("remark") or "无"
     return (
         f"- {g.get('name')} "
-        f"| 分类: {type_map.get(g.get('goodsType'), '未知')} "
+        f"| 分类: {type_map.get(g.get('goodstype'), '未知')} "
         f"| 药房: {storage_map.get(g.get('storage'), '未知')} "
         f"| 库存: {g.get('count')} "
         f"| 备注: {remark}"
@@ -141,7 +144,7 @@ def query_goods_by_type_name(typeName: str) -> str:
         return f"未找到分类「{typeName}」，请检查分类名称"
 
     all_goods = wms.list_all_goods()
-    goods_list = [g for g in all_goods if g.get("goodsType") == target["id"]]
+    goods_list = [g for g in all_goods if g.get("goodstype") == target["id"]]
     if not goods_list:
         return f"分类「{typeName}」下暂无药品"
 
@@ -187,7 +190,7 @@ def query_goods_by_storage_name(storageName: str) -> str:
         remark = g.get("remark") or "无"
         lines.append(
             f"- {g.get('name')} "
-            f"| 分类: {tmap.get(g.get('goodsType'), '未知')} "
+            f"| 分类: {tmap.get(g.get('goodstype'), '未知')} "
             f"| 库存: {g.get('count')} "
             f"| 备注: {remark}"
         )
@@ -213,7 +216,7 @@ def query_all_categories() -> str:
     all_goods = wms.list_all_goods()
     lines = [f"共 {len(type_list)} 个分类："]
     for t in type_list:
-        count = sum(1 for g in all_goods if g.get("goodsType") == t.get("id"))
+        count = sum(1 for g in all_goods if g.get("goodstype") == t.get("id"))
         remark = t.get("remark")
         line = f"- {t.get('name')}（含 {count} 种药品）"
         if remark:

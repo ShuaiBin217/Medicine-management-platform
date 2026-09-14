@@ -9,7 +9,22 @@ export default defineConfig({
     extensions: ['.mjs', '.js', '.mts', '.ts', '.jsx', '.tsx', '.json', '.vue']
   },
   server: {
-    port: 8080
+    port: 8080,
+    // 开发环境代理：与生产 Nginx 的 /ai/、/knowledge/ 转发行为保持一致
+    proxy: {
+      '/ai': {
+        target: 'http://localhost:8091',
+        changeOrigin: true
+      },
+      '/knowledge': {
+        target: 'http://localhost:8091',
+        changeOrigin: true
+      },
+      '/health': {
+        target: 'http://localhost:8091',
+        changeOrigin: true
+      }
+    }
   },
   build: {
     outDir: 'dist',
