@@ -102,7 +102,7 @@
             <template #footer>
                 <span class="dialog-footer">
                     <el-button @click="centerDialogVisible = false">取 消</el-button>
-                    <el-button type="primary" @click="save">确 定</el-button>
+                    <el-button type="primary" :loading="submitting" @click="save">确 定</el-button>
                 </span>
             </template>
         </el-dialog>
@@ -151,6 +151,7 @@
                     }
                 ],
                 centerDialogVisible:false,
+                submitting:false,
                 form:{
                     id:'',
                     no:'',
@@ -255,7 +256,7 @@
                         });
                     }
 
-                })
+                }).finally(() => { this.submitting = false })
             },
             doMod(){
                 this.$axios.post(this.$httpUrl+'/user/update',this.form).then(res=>res.data).then(res=>{
@@ -276,11 +277,13 @@
                         });
                     }
 
-                })
+                }).finally(() => { this.submitting = false })
             },
             save(){
+                if(this.submitting) return
                 this.$refs.form.validate((valid) => {
                     if (valid) {
+                        this.submitting = true
                         if(this.form.id){
                             this.doMod();
                         }else{

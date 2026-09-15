@@ -12,8 +12,14 @@ import com.wms.entity.User;
 import com.wms.service.MenuService;
 import com.wms.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpSession;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -32,6 +38,8 @@ public class UserController {
     private UserService userService;
     @Autowired
     private MenuService menuService;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @GetMapping("/list")
     public List<User> list(){
@@ -60,25 +68,59 @@ public class UserController {
 
     //登录
     @PostMapping("/login")
-    public Result login(@RequestBody User user){
-        List list = userService.lambdaQuery()
-                .eq(User::getNo,user.getNo())
-                .eq(User::getPassword,user.getPassword()).list();
+    public Result login(@RequestBody User user, HttpSession session){
+        User dbUser = userService.lambdaQuery()
+                .eq(User::getNo, user.getNo())
+                .one();
 
-
-        if(list.size()>0){
-            User user1 = (User)list.get(0);
-            // 校验账号是否被停用
-            if(user1.getIsvalid() == null || !"Y".equals(user1.getIsvalid())){
-                return Result.fail("该账号已被停用，请联系管理员");
-            }
-            List menuList = menuService.lambdaQuery().like(Menu::getMenuright,user1.getRoleId()).list();
-            HashMap res = new HashMap();
-            res.put("user",user1);
-            res.put("menu",menuList);
-            return Result.suc(res);
+        if(dbUser == null){
+            return Result.fail("账号不存在");
         }
-        return Result.fail();
+        // 校验账号是否被停用
+        if(dbUser.getIsvalid() == null || !"Y".equals(dbUser.getIsvalid())){
+            return Result.fail("该账号已被停用，请联系管理员");
+        }
+        // BCrypt 密码校验：兼容明文（旧数据）和 BCrypt（新数据）
+        boolean passwordMatch;
+        if(dbUser.getPassword().startsWith("$2a$") || dbUser.getPassword().startsWith("$2b$")){
+            passwordMatch = passwordEncoder.matches(user.getPassword(), dbUser.getPassword());
+        } else {
+            // 旧明文密码，匹配后自动升级为 BCrypt
+            passwordMatch = user.getPassword().equals(dbUser.getPassword());
+            if(passwordMatch){
+                dbUser.setPassword(passwordEncoder.encode(user.getPassword()));
+                userService.updateById(dbUser);
+            }
+        }
+        if(!passwordMatch){
+            return Result.fail("账号或密码错误");
+        }
+
+        // 密码不返回给前端
+        dbUser.setPassword(null);
+        List menuList = menuService.lambdaQuery().like(Menu::getMenuright, dbUser.getRoleId()).list();
+
+        // 将用户信息存入 Spring Security Context（这样后续请求才能通过鉴权）
+        String roleName = "ROLE_" + dbUser.getRoleId();
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+                dbUser.getNo(), null,
+                Collections.singletonList(new SimpleGrantedAuthority(roleName))
+        );
+        SecurityContextHolder.getContext().setAuthentication(auth);
+        // 同步到 Spring Session（Redis）
+        session.setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
+
+        HashMap res = new HashMap();
+        res.put("user", dbUser);
+        res.put("menu", menuList);
+        return Result.suc(res);
+    }
+
+    //登出
+    @PostMapping("/logout")
+    public Result logout(HttpSession session){
+        session.invalidate();
+        return Result.suc();
     }
 
     //修改

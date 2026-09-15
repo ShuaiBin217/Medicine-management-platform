@@ -1,7 +1,6 @@
 package com.wms.controller;
 
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
@@ -15,13 +14,11 @@ import com.wms.service.GoodsService;
 import com.wms.service.RedisService;
 import com.wms.service.RecordService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/record")
@@ -70,21 +67,88 @@ public class RecordController {
         return Result.suc(result.getRecords(),result.getTotal());
     }
 
+    /**
+     * 事务性保存流转记录（含库存同步更新+乐观锁防超卖）
+     */
     @PostMapping("/save")
     public Result save(@RequestBody Record record){
-        Goods goods = goodsService.getById(record.getGoods());
-        int n = record.getCount();
-        if("2".equals(record.getAction())){
-             n = -n;
-             record.setCount(n);
+        try {
+            boolean success = recordService.saveWithInventory(record);
+            if (success) {
+                clearGoodsCache();
+                return Result.suc();
+            }
+            return Result.fail();
+        } catch (RuntimeException e) {
+            return Result.fail(e.getMessage());
         }
+    }
 
-        int num = goods.getCount()+n;
-        goods.setCount(num);
-        goodsService.updateById(goods);
+    /**
+     * 批量删除流转记录（含权限校验+操作日志）
+     */
+    @PostMapping("/batchDelete")
+    public Result batchDelete(@RequestBody Map<String, Object> body) {
+        try {
+            @SuppressWarnings("unchecked")
+            List<Integer> ids = (List<Integer>) body.get("ids");
+            Integer operatorId = (Integer) body.get("operatorId");
+            Integer operatorRole = (Integer) body.get("operatorRole");
 
-        clearGoodsCache();
-        return recordService.save(record)?Result.suc():Result.fail();
+            if (ids == null || ids.isEmpty()) {
+                return Result.fail("请选择要删除的记录");
+            }
+
+            int deleted = recordService.batchDelete(ids, operatorId, operatorRole);
+            Map<String, Object> data = new HashMap<>();
+            data.put("deleted", deleted);
+            return Result.suc(data);
+        } catch (RuntimeException e) {
+            return Result.fail(e.getMessage());
+        }
+    }
+
+    /**
+     * 预扣减库存（出库前预占库存）
+     */
+    @PostMapping("/preDeduct")
+    public Result preDeduct(@RequestBody Record record) {
+        try {
+            Integer recordId = recordService.preDeduct(record);
+            clearGoodsCache();
+            return Result.suc(recordId);
+        } catch (RuntimeException e) {
+            return Result.fail(e.getMessage());
+        }
+    }
+
+    /**
+     * 确认预扣减
+     */
+    @GetMapping("/confirmDeduct")
+    public Result confirmDeduct(@RequestParam Integer id) {
+        try {
+            boolean success = recordService.confirmDeduct(id);
+            return success ? Result.suc() : Result.fail();
+        } catch (RuntimeException e) {
+            return Result.fail(e.getMessage());
+        }
+    }
+
+    /**
+     * 回滚预扣减（超时未确认时恢复库存）
+     */
+    @GetMapping("/rollbackDeduct")
+    public Result rollbackDeduct(@RequestParam Integer id) {
+        try {
+            boolean success = recordService.rollbackDeduct(id);
+            if (success) {
+                clearGoodsCache();
+            }
+            return success ? Result.suc() : Result.fail();
+        } catch (RuntimeException e) {
+            return Result.fail(e.getMessage());
+        }
     }
 
     private void clearGoodsCache() {

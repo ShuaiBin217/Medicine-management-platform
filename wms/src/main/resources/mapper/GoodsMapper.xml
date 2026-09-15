@@ -13,11 +13,12 @@
         <result column="goodsType" property="goodstype" />
         <result column="count" property="count" />
         <result column="remark" property="remark" />
+        <result column="version" property="version" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, name, storage, goodsType, count, remark
+        id, name, storage, goodsType, count, remark, version
     </sql>
 
 </mapper>

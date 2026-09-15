@@ -15,6 +15,23 @@ const app = createApp(App)
 
 // 全局属性：$aiUrl 空串 = 走同源代理（开发由 vite.config.js proxy、生产由 Nginx 转发到 AI 服务）
 app.config.globalProperties.$axios = axios
+
+// axios 全局配置：跨域请求携带 Cookie（Spring Session 鉴权必需）
+axios.defaults.withCredentials = true
+
+// 响应拦截器：401 未授权 → 清除本地状态 → 跳转登录页
+axios.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      sessionStorage.removeItem('CurUser')
+      sessionStorage.removeItem('MenuList')
+      ElMessage.error('登录已过期，请重新登录')
+      window.location.href = '/'
+    }
+    return Promise.reject(error)
+  }
+)
 app.config.globalProperties.$httpUrl = import.meta.env.VITE_API_URL || 'http://localhost:8090'
 const rawAiUrl = import.meta.env.VITE_AI_URL
 app.config.globalProperties.$aiUrl = (rawAiUrl != null && rawAiUrl.trim() !== '') ? rawAiUrl : ''

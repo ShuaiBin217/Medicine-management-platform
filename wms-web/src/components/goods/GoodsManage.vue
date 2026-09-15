@@ -124,7 +124,7 @@
             <template #footer>
                 <span class="dialog-footer">
                     <el-button @click="centerDialogVisible = false">取 消</el-button>
-                    <el-button type="primary" @click="save">确 定</el-button>
+                    <el-button type="primary" :loading="submitting" @click="save">确 定</el-button>
                 </span>
             </template>
         </el-dialog>
@@ -177,7 +177,7 @@
             <template #footer>
                 <span class="dialog-footer">
                     <el-button @click="inDialogVisible = false">取 消</el-button>
-                    <el-button type="primary" @click="doInGoods">确 定</el-button>
+                    <el-button type="primary" :loading="submitting" @click="doInGoods">确 定</el-button>
                 </span>
             </template>
         </el-dialog>
@@ -211,6 +211,7 @@
                 storage:'',
                 goodstype:'',
                 centerDialogVisible:false,
+                submitting:false,
                 inDialogVisible:false,
                 innerVisible:false,
                 currentRow:{},
@@ -388,7 +389,7 @@
                         });
                     }
 
-                })
+                }).finally(() => { this.submitting = false })
             },
             doMod(){
                 this.$axios.post(this.$httpUrl+'/goods/update',this.form).then(res=>res.data).then(res=>{
@@ -409,11 +410,13 @@
                         });
                     }
 
-                })
+                }).finally(() => { this.submitting = false })
             },
             save(){
+                if(this.submitting) return
                 this.$refs.form.validate((valid) => {
                     if (valid) {
+                        this.submitting = true
                         if(this.form.id){
                             this.doMod();
                         }else{
@@ -427,25 +430,34 @@
 
             },
             doInGoods(){
+                if(this.submitting) return
+                const actionText = this.form1.action === '1' ? '采购入库' : '发药出库'
+                this.$confirm(
+                    `确定执行${actionText}操作？药品：${this.form1.goodsname}，数量：${this.form1.count}`,
+                    '库存操作确认',
+                    {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        type: 'warning'
+                    }
+                ).then(() => {
+                    this.submitting = true
+                    this.submitInGoods()
+                }).catch(() => {})
+            },
+            submitInGoods(){
                 this.$axios.post(this.$httpUrl+'/record/save',this.form1).then(res=>res.data).then(res=>{
-                    console.log(res)
                     if(res.code==200){
-
-                        this.$message({
-                            message: '操作成功！',
-                            type: 'success'
-                        });
+                        this.$message.success('操作成功！')
                         this.inDialogVisible = false
                         this.loadPost()
-                        this. resetInForm()
+                        this.resetInForm()
                     }else{
-                        this.$message({
-                            message: '操作失败！',
-                            type: 'error'
-                        });
+                        this.$message.error(res.msg || '操作失败！')
                     }
-
-                })
+                }).catch(() => {
+                    this.$message.error('网络错误')
+                }).finally(() => { this.submitting = false })
             },
             handleSizeChange(val) {
                 console.log(`每页 ${val} 条`);

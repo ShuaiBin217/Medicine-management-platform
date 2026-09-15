@@ -67,6 +67,7 @@ CREATE TABLE `goods` (
   `goodsType` int(11) NOT NULL COMMENT '分类',
   `count` int(11) DEFAULT NULL COMMENT '数量',
   `remark` varchar(1000) DEFAULT NULL COMMENT '备注',
+  `version` int(11) DEFAULT 0 COMMENT '乐观锁版本号',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
@@ -79,5 +80,6 @@ CREATE TABLE `record` (
   `count` int(11) DEFAULT NULL COMMENT '数量',
   `createtime` datetime DEFAULT NULL COMMENT '操作时间',
   `remark` varchar(1000) DEFAULT NULL COMMENT '备注',
+  `status` int(11) DEFAULT 1 COMMENT '状态：0预扣减，1已确认',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;

@@ -72,6 +72,8 @@ export function resetRouter() {
 router.beforeEach((to) => {
     let user = sessionStorage.getItem('CurUser')
     if (to.path === '/') {
+        // 已登录用户访问登录页 → 跳首页
+        if (user) return { path: '/Index' }
         return true
     }
     return user ? true : { path: '/' }

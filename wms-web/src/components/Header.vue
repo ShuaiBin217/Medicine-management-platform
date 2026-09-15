@@ -52,30 +52,22 @@
                 this.$router.push("/Home")
             },
             logout(){
-                console.log('logout')
-
                 this.$confirm('您确定要退出登录吗?', '提示', {
-                    confirmButtonText: '确定',  //确认按钮的文字显示
+                    confirmButtonText: '确定',
                     type: 'warning',
-                    center: true, //文字居中显示
-
+                    center: true,
                 })
                     .then(() => {
-                        this.$message({
-                            type:'success',
-                            message:'退出登录成功'
+                        // 调用后端登出接口，清除 Redis 中的 Session
+                        this.$axios.post(this.$httpUrl + '/user/logout').finally(() => {
+                            this.$message({ type: 'success', message: '退出登录成功' })
+                            sessionStorage.clear()
+                            this.$router.push('/')
                         })
-
-                        this.$router.push("/")
-                        sessionStorage.clear()
                     })
                     .catch(() => {
-                        this.$message({
-                            type:'info',
-                            message:'已取消退出登录'
-                        })
+                        this.$message({ type: 'info', message: '已取消退出登录' })
                     })
-
             },
             collapse(){
                 this.$emit('doCollapse')

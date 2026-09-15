@@ -55,4 +55,8 @@ public class Record implements Serializable {
 
     @TableField(exist = false)
     private String action;
+
+    @ApiModelProperty(value = "状态：0预扣减，1已确认")
+    @TableField("status")
+    private Integer status;
 }
