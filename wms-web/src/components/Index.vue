@@ -1,16 +1,18 @@
 <template>
-    <el-container style="height: 100%;">
+    <el-container class="index-shell">
         <el-aside :width="aside_witdh" class="index-aside">
             <Aside :isCollapse="isCollapse"></Aside>
         </el-aside>
 
-        <el-container style="height: 100%;">
+        <el-container class="index-body">
             <el-header class="index-header">
                 <Header @doCollapse="doCollapse" :icon="icon"></Header>
             </el-header>
 
             <el-main class="index-main">
-                <router-view/>
+                <div class="page-shell">
+                    <router-view/>
+                </div>
             </el-main>
         </el-container>
 
@@ -29,19 +31,17 @@
         data(){
             return {
                 isCollapse:false,
-                aside_witdh:'200px',
+                aside_witdh:'240px',
                 icon:'Fold'
             }
         },
         methods:{
             doCollapse(){
-                console.log(1111)
-
                 this.isCollapse = !this.isCollapse
                 if(!this.isCollapse){// 展开
-                    this.aside_witdh='200px'
+                    this.aside_witdh='240px'
                     this.icon='Fold'
-                }else{//关起、关闭、收起
+                }else{// 收起
                     this.aside_witdh='64px'
                     this.icon='Expand'
                 }
@@ -51,28 +51,37 @@
 </script>
 
 <style scoped>
+    .index-shell {
+        height: 100vh;
+        background: var(--paper);
+    }
     .index-aside {
         height: 100vh;
-        background-color: #1E2A3A;
-        margin-left: -1px;
-        transition: width 0.3s ease;
+        background-color: var(--sidebar-bg);
+        transition: width 0.2s ease;
         overflow-x: hidden;
-        box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+        flex-shrink: 0;
+    }
+    .index-body {
+        height: 100vh;
+        min-width: 0;
     }
     .index-header {
-        text-align: right;
-        font-size: 12px;
-        height: 60px;
-        border-bottom: 1px solid #E2E8F0;
-        background: #FFFFFF;
-        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+        height: 56px;
+        padding: 0;
+        border-bottom: 1px solid var(--line);
+        background: var(--card);
         flex-shrink: 0;
     }
     .index-main {
         flex: 1;
         overflow: auto;
-        padding: 16px;
-        background: #F0F2F5;
+        padding: 24px 28px 32px;
+        background: var(--paper);
+    }
+    .page-shell {
+        max-width: 1440px;
+        margin: 0 auto;
     }
     .chat-nurse-slot {
         position: absolute;
@@ -80,5 +89,10 @@
         height: 0;
         overflow: visible;
         pointer-events: none;
+    }
+    @media (max-width: 900px) {
+        .index-main {
+            padding: 16px;
+        }
     }
 </style>

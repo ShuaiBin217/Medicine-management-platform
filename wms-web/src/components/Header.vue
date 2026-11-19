@@ -4,16 +4,21 @@
             <div class="collapse-icon" @click="collapse">
                 <el-icon><component :is="icon"/></el-icon>
             </div>
-        </div>
-        <div class="header-center">
-            <span class="header-title">药品管理系统</span>
+            <div class="page-heading">
+                <span class="page-eyebrow">{{ pageSection }} / DRUGWMS</span>
+                <span class="page-title">{{ pageTitle }}</span>
+            </div>
         </div>
         <div class="header-right">
+            <span class="header-date mono">{{ todayText }}</span>
             <el-dropdown>
                 <span class="user-info">
-                    <el-icon style="margin-right: 6px; font-size: 16px;"><UserFilled/></el-icon>
-                    {{user.name}}
-                    <el-icon style="margin-left: 4px; font-size: 12px;"><ArrowDown/></el-icon>
+                    <span class="user-avatar">{{ userInitial }}</span>
+                    <span class="user-meta">
+                        <span class="user-name">{{ user.name }}</span>
+                        <span class="user-role">{{ roleText }}</span>
+                    </span>
+                    <el-icon class="user-caret"><ArrowDown/></el-icon>
                 </span>
                 <template #dropdown>
                     <el-dropdown-menu>
@@ -31,8 +36,8 @@
             </el-dropdown>
         </div>
 
-        <el-dialog v-model="pwdVisible" title="修改密码" width="380px" center>
-            <el-form ref="pwdForm" :model="pwdForm" :rules="pwdRules" label-width="90px">
+        <el-dialog v-model="pwdVisible" title="修改密码" width="400px">
+            <el-form ref="pwdForm" :model="pwdForm" :rules="pwdRules" label-width="80px">
                 <el-form-item label="原密码" prop="oldPassword">
                     <el-input v-model="pwdForm.oldPassword" type="password" show-password autocomplete="off"></el-input>
                 </el-form-item>
@@ -46,8 +51,8 @@
             </el-form>
             <template #footer>
                 <span class="dialog-footer">
-                    <el-button @click="pwdVisible = false">取 消</el-button>
-                    <el-button type="primary" :loading="pwdSubmitting" @click="submitPwd">确 定</el-button>
+                    <el-button @click="pwdVisible = false">取消</el-button>
+                    <el-button type="primary" :loading="pwdSubmitting" @click="submitPwd">确定</el-button>
                 </span>
             </template>
         </el-dialog>
@@ -55,6 +60,8 @@
 </template>
 
 <script>
+    import { useMenuStore } from '../stores/menu'
+
     export default {
         name: "Header",
         data(){
@@ -66,7 +73,7 @@
                 }
             };
             return {
-                user : JSON.parse(sessionStorage.getItem('CurUser')),
+                user : JSON.parse(sessionStorage.getItem('CurUser')) || {},
                 pwdVisible: false,
                 pwdSubmitting: false,
                 pwdForm: {
@@ -92,11 +99,42 @@
         props:{
             icon:String
         },
-        methods:{
-            handleCommand(cmd){
-                if (cmd === 'toUser') this.toUser()
-                else if (cmd === 'logout') this.logout()
+        computed: {
+            menu() {
+                return useMenuStore().menu
             },
+            pageTitle() {
+                const path = this.$route.path
+                if (path === '/Home') return '库存仪表盘'
+                if (path === '/GoodsDetail') return '药品流转详细'
+                const hit = this.menu.find(item => '/' + item.menuclick === path)
+                return hit ? hit.menuname : '药房工作台'
+            },
+            pageSection() {
+                const path = this.$route.path
+                if (path === '/Home') return '工作台'
+                if (path === '/GoodsDetail' || path.indexOf('/Goods') === 0) return '药品管理'
+                if (path.indexOf('/Record') === 0) return '流转记录'
+                if (path.indexOf('/Storage') === 0 || path.indexOf('/Goodstype') === 0) return '基础资料'
+                if (path.indexOf('/User') === 0 || path.indexOf('/Admin') === 0) return '账号与权限'
+                return '药房工作台'
+            },
+            roleText() {
+                const role = String(this.user.roleId)
+                if (role === '0') return '超级管理员'
+                if (role === '1') return '管理员'
+                return '普通用户'
+            },
+            userInitial() {
+                return this.user.name ? this.user.name.slice(0, 1) : 'U'
+            },
+            todayText() {
+                const d = new Date()
+                const pad = n => String(n).padStart(2, '0')
+                return d.getFullYear() + '.' + pad(d.getMonth() + 1) + '.' + pad(d.getDate())
+            }
+        },
+        methods:{
             openPwd(){
                 this.pwdVisible = true
                 this.$nextTick(() => {
@@ -132,36 +170,27 @@
                 })
             },
             toUser(){
-                console.log('to_user')
-
                 this.$router.push("/Home")
             },
             logout(){
-                this.$confirm('您确定要退出登录吗?', '提示', {
+                this.$confirm('确定要退出登录吗？', '提示', {
                     confirmButtonText: '确定',
-                    type: 'warning',
-                    center: true,
+                    cancelButtonText: '取消',
+                    type: 'warning'
                 })
                     .then(() => {
-                        // 调用后端登出接口，清除 Redis 中的 Session
                         this.$axios.post(this.$httpUrl + '/user/logout').finally(() => {
-                            this.$message({ type: 'success', message: '退出登录成功' })
+                            this.$message({ type: 'success', message: '已退出登录' })
                             sessionStorage.clear()
                             this.$router.push('/')
                         })
                     })
-                    .catch(() => {
-                        this.$message({ type: 'info', message: '已取消退出登录' })
-                    })
+                    .catch(() => {})
             },
             collapse(){
                 this.$emit('doCollapse')
             }
-
-        },
-        created(){
         }
-
     }
 </script>
 
@@ -169,56 +198,113 @@
     .header-container {
         display: flex;
         align-items: center;
-        line-height: 60px;
-        height: 60px;
-        padding: 0 20px;
+        justify-content: space-between;
+        height: 56px;
+        padding: 0 24px;
     }
     .header-left {
         display: flex;
         align-items: center;
+        gap: 14px;
+        min-width: 0;
     }
     .collapse-icon {
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 22px;
+        width: 30px;
+        height: 30px;
+        font-size: 18px;
         cursor: pointer;
-        color: #4A5568;
-        transition: all 0.25s ease;
-        padding: 10px;
-        border-radius: 8px;
+        color: var(--ink-2);
+        border-radius: 6px;
+        transition: var(--transition);
+        flex-shrink: 0;
     }
     .collapse-icon:hover {
-        background: #F0F2F5;
-        color: #4A6CF7;
+        background: var(--raised);
+        color: var(--ink);
     }
-    .header-center {
-        flex: 1;
-        text-align: center;
+    .page-heading {
+        display: flex;
+        flex-direction: column;
+        line-height: 1.25;
+        min-width: 0;
     }
-    .header-title {
-        font-size: 18px;
-        font-weight: 600;
-        color: #1A202C;
-        letter-spacing: 2px;
+    .page-eyebrow {
+        font-size: 10px;
+        color: var(--muted);
+        letter-spacing: 0.12em;
+        font-weight: 500;
+    }
+    .page-title {
+        font-size: 15px;
+        font-weight: 500;
+        color: var(--ink);
+        white-space: nowrap;
     }
     .header-right {
         display: flex;
         align-items: center;
+        gap: 18px;
+    }
+    .header-date {
+        font-size: 11px;
+        color: var(--muted);
+        letter-spacing: 0.02em;
     }
     .user-info {
         display: flex;
         align-items: center;
+        gap: 8px;
         cursor: pointer;
-        color: #4A5568;
-        font-size: 14px;
-        font-weight: 500;
-        padding: 6px 12px;
+        padding: 4px 8px 4px 4px;
         border-radius: 8px;
-        transition: all 0.25s ease;
+        transition: var(--transition);
     }
     .user-info:hover {
-        background: #F0F2F5;
-        color: #4A6CF7;
+        background: var(--raised);
+    }
+    .user-avatar {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: var(--raised);
+        border: 1px solid var(--line);
+        color: var(--ink-2);
+        font-size: 12px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    .user-meta {
+        display: flex;
+        flex-direction: column;
+        line-height: 1.2;
+    }
+    .user-name {
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--ink);
+    }
+    .user-role {
+        font-size: 10px;
+        color: var(--muted);
+        margin-top: 2px;
+    }
+    .user-caret {
+        font-size: 12px;
+        color: var(--muted);
+    }
+    @media (max-width: 900px) {
+        .header-date,
+        .user-role {
+            display: none;
+        }
+        .header-container {
+            padding: 0 14px;
+        }
     }
 </style>
