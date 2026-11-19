@@ -153,8 +153,8 @@ html, body {
 }
 .el-button--danger {
     background: transparent !important;
-    border-color: var(--line) !important;
-    color: var(--ink-2) !important;
+    border-color: #E3C9C5 !important;
+    color: #9B3A32 !important;
 }
 .el-button--danger:hover {
     background: var(--red-soft) !important;
@@ -299,7 +299,7 @@ html, body {
     box-shadow: none !important;
 }
 .table-card .el-pagination {
-    justify-content: flex-end !important;
+    justify-content: center !important;
 }
 .el-pagination {
     padding: 14px 0 4px !important;
@@ -325,6 +325,7 @@ html, body {
     background: var(--card) !important;
     box-shadow: var(--shadow-lg) !important;
     overflow: hidden;
+    max-width: calc(100vw - 32px);
 }
 .el-dialog__header {
     padding: 20px 24px 14px !important;
@@ -403,6 +404,29 @@ html, body {
 }
 
 /* ---------- 通用工具 ---------- */
+.cell-text {
+    font-size: 12px;
+    color: var(--ink-2);
+}
+.role-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    color: var(--ink-2);
+    white-space: nowrap;
+}
+.role-badge::before {
+    content: '';
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--muted);
+}
+.role-badge.role-0::before { background: var(--accent); }
+.role-badge.role-1::before { background: var(--amber); }
+.role-badge.role-2::before { background: #A8A093; }
+
 .mono {
     font-family: ui-monospace, "JetBrains Mono", Consolas, monospace;
     font-variant-numeric: tabular-nums;

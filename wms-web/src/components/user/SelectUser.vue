@@ -12,12 +12,12 @@
                 </el-option>
             </el-select>
             <el-button type="primary" style="margin-left: 8px;" @click="loadPost">查询</el-button>
-            <el-button type="success" @click="resetParam">重置</el-button>
+            <el-button @click="resetParam">重置</el-button>
 
         </div>
         <div class="table-card">
             <el-table :data="tableData"
-                  :header-cell-style="{ background: '#F7F8FC', color: '#4A5568', fontWeight: '600' }"
+                  
                   border
                   stripe
                   highlight-current-row
@@ -33,17 +33,12 @@
                 </el-table-column>
                 <el-table-column prop="sex" label="性别" width="80">
                     <template #default="scope">
-                        <el-tag
-                                :type="scope.row.sex === 1 ? 'primary' : 'success'"
-                                disable-transitions>{{scope.row.sex === 1 ? '男' : '女'}}</el-tag>
+                        <span class="cell-text">{{ scope.row.sex === 1 ? '男' : '女' }}</span>
                     </template>
                 </el-table-column>
                 <el-table-column prop="roleId" label="角色" width="120">
                     <template #default="scope">
-                        <el-tag
-                                :type="scope.row.roleId === 0 ? 'danger' : (scope.row.roleId === 1 ? 'primary' : 'success')"
-                                disable-transitions>{{scope.row.roleId === 0 ? '超级管理员' :
-                        (scope.row.roleId === 1 ? '管理员' : '用户')}}</el-tag>
+                        <span class="role-badge" :class="'role-' + scope.row.roleId">{{ scope.row.roleId === 0 ? '超级管理员' : (scope.row.roleId === 1 ? '管理员' : '普通用户') }}</span>
                     </template>
                 </el-table-column>
                 <el-table-column prop="phone" label="电话">
@@ -353,7 +348,7 @@
         padding: 0;
     }
     .search-bar {
-        background: #FFFFFF;
+        background: var(--card);
         padding: 16px 20px;
         border-radius: 10px;
         margin-bottom: 16px;
@@ -362,7 +357,7 @@
         align-items: center;
     }
     .table-card {
-        background: #FFFFFF;
+        background: var(--card);
         padding: 20px;
         border-radius: 10px;
         box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
@@ -373,12 +368,12 @@
         margin-top: 16px;
     }
     .table-card :deep(.el-table__body tr.current-row > td) {
-        background-color: #4A6CF7 !important;
-        color: #FFFFFF !important;
+        background-color: var(--raised) !important;
+        color: var(--ink) !important;
     }
     .table-card :deep(.el-table__body tr.current-row > td .el-tag) {
-        background-color: rgba(255, 255, 255, 0.2) !important;
-        color: #FFFFFF !important;
-        border-color: rgba(255, 255, 255, 0.3) !important;
+        background-color: var(--raised) !important;
+        color: var(--ink) !important;
+        border-color: var(--line) !important;
     }
 </style>

@@ -29,6 +29,7 @@ export const legacyIconMap = {
   'el-icon-search': 'Search',
   'el-icon-lock': 'Lock',
   'el-icon-s-promotion': 'Promotion',
+  'el-icon-share': 'Share',
   // DB menu 库表常见值（持续补充）
   'el-icon-menu': 'Grid',
   'el-icon-setting': 'Setting',

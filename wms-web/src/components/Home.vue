@@ -202,6 +202,7 @@
                 this.$axios.get(this.$httpUrl + '/storage/list').then(res => res.data).then(res => {
                     if (res.code == 200) {
                         this.storageData = res.data;
+                        if (this.goodsData.length) this.$nextTick(() => this.renderTypeChart());
                     }
                 });
             },
@@ -209,6 +210,7 @@
                 this.$axios.get(this.$httpUrl + '/goodstype/list').then(res => res.data).then(res => {
                     if (res.code == 200) {
                         this.goodstypeData = res.data;
+                        if (this.goodsData.length) this.$nextTick(() => this.renderTypeChart());
                     }
                 });
             },

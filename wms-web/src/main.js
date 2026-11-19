@@ -42,8 +42,8 @@ useMenuStore(pinia).restoreFromStorage() // 刷新后恢复菜单与动态路由
 
 app.use(router)
 
-// Element Plus：中文语言包必须显式配置，size:'small' 等价原 Vue.use(ElementUI,{size:'small'})
-app.use(ElementPlus, { locale: zhCn, size: 'small' })
+// Element Plus：中文语言包；控件统一使用默认 32px 高度
+app.use(ElementPlus, { locale: zhCn })
 
 // 全局方法兜底：保证 this.$message/$confirm 等调用行为与 Vue 2 版一致
 app.config.globalProperties.$message = ElMessage

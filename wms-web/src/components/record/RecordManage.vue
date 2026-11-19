@@ -25,7 +25,7 @@
             </el-select>
 
             <el-button type="primary" style="margin-left: 8px;" @click="loadPost">查询</el-button>
-            <el-button type="success" @click="resetParam">重置</el-button>
+            <el-button @click="resetParam">重置</el-button>
 
             <el-button type="danger" style="margin-left: 8px;" :loading="submitting" @click="confirmBatchDelete"
                        :disabled="selectedIds.length === 0" v-if="user.roleId!=2">
@@ -34,7 +34,7 @@
         </div>
         <div class="table-card">
             <el-table :data="tableData"
-                  :header-cell-style="{ background: '#F7F8FC', color: '#4A5568', fontWeight: '600' }"
+                  
                   border
                   stripe
                   @selection-change="handleSelectionChange"
@@ -43,42 +43,43 @@
                 </el-table-column>
                 <el-table-column prop="id" label="ID" width="60">
                 </el-table-column>
-                <el-table-column prop="goodsname" label="药品名" width="180">
+                <el-table-column prop="goodsname" label="药品名" width="150">
                 </el-table-column>
-                <el-table-column prop="storagename" label="药房" width="180">
+                <el-table-column prop="storagename" label="药房" width="120">
                 </el-table-column>
-                <el-table-column prop="goodstypename" label="药品分类" width="180">
+                <el-table-column prop="goodstypename" label="药品分类" width="120">
                 </el-table-column>
-                <el-table-column prop="adminname" label="操作人" width="180">
+                <el-table-column prop="adminname" label="操作人" width="110">
                 </el-table-column>
-                <el-table-column prop="username" label="取药人" width="180">
+                <el-table-column prop="username" label="取药人" width="110">
                 </el-table-column>
-                <el-table-column prop="count" label="数量" width="120">
+                <el-table-column prop="count" label="数量" width="80">
                     <template #default="scope">
-                        <span :style="{color: scope.row.count >= 0 ? '#22A06B' : '#E6A23C', fontWeight: 600}">
-                            {{ scope.row.count >= 0 ? '+' : '' }}{{ scope.row.count }}
+                        <span class="qty mono" :class="{ 'is-out': scope.row.count < 0 }">
+                            {{ scope.row.count >= 0 ? '+' : '−' }}{{ Math.abs(scope.row.count) }}
                         </span>
                     </template>
                 </el-table-column>
                 <el-table-column label="状态" width="110">
                     <template #default="scope">
-                        <el-tag v-if="scope.row.status === 0" type="warning" size="small">待确认</el-tag>
-                        <el-tag v-else type="success" size="small">已确认</el-tag>
+                        <span class="flow-status" :class="scope.row.status === 0 ? 'is-pending' : 'is-done'">
+                            <span class="status-dot" :class="scope.row.status === 0 ? 'is-warn' : 'is-ok'"></span>{{ scope.row.status === 0 ? '待确认' : '已确认' }}
+                        </span>
                     </template>
                 </el-table-column>
                 <el-table-column prop="createtime" label="操作时间" width="180">
                 </el-table-column>
-                <el-table-column prop="remark" label="备注">
+                <el-table-column prop="remark" label="备注" min-width="120">
                 </el-table-column>
-                <el-table-column label="操作" width="160" v-if="user.roleId!=2">
+                <el-table-column label="操作" width="130" v-if="user.roleId!=2">
                     <template #default="scope">
                         <template v-if="scope.row.status === 0">
-                            <el-button size="small" type="success" :loading="submitting"
+                            <el-button size="small" type="primary" :loading="submitting"
                                        @click="confirmDeduct(scope.row)">确认</el-button>
                             <el-popconfirm title="回滚后库存恢复、该单据删除，确定吗？"
                                            @confirm="rollbackDeduct(scope.row)">
                                 <template #reference>
-                                    <el-button size="small" type="danger">回滚</el-button>
+                                    <el-button size="small">回滚</el-button>
                                 </template>
                             </el-popconfirm>
                         </template>
@@ -227,6 +228,8 @@
                 this.storage=''
                 this.goodstype=''
                 this.status=''
+                this.pageNum=1
+                this.loadPost()
             },
             loadStorage(){
                 this.$axios.get(this.$httpUrl+'/storage/list').then(res=>res.data).then(res=>{
@@ -254,7 +257,7 @@
                         name:this.name,
                         goodstype:this.goodstype+'',
                         storage:this.storage+'',
-                        status:this.status+'',
+                        status:(this.status === '' || this.status == null) ? '' : this.status+'',
                         roleId:this.user.roleId+'',
                         userId:this.user.id+''
                     }
@@ -281,7 +284,7 @@
         padding: 0;
     }
     .search-bar {
-        background: #FFFFFF;
+        background: var(--card);
         padding: 16px 20px;
         border-radius: 10px;
         margin-bottom: 16px;
@@ -290,7 +293,7 @@
         align-items: center;
     }
     .table-card {
-        background: #FFFFFF;
+        background: var(--card);
         padding: 20px;
         border-radius: 10px;
         box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
@@ -301,6 +304,22 @@
         margin-top: 16px;
     }
     .muted {
-        color: #A0AEC0;
+        color: var(--muted);
+    }
+    .qty {
+        font-weight: 500;
+        color: var(--ink);
+    }
+    .qty.is-out {
+        color: var(--muted);
+    }
+    .flow-status {
+        display: inline-flex;
+        align-items: center;
+        font-size: 12px;
+        color: var(--muted);
+    }
+    .flow-status.is-pending {
+        color: var(--amber);
     }
 </style>

@@ -4,13 +4,13 @@
             <el-input v-model="name" placeholder="请输入药房名" suffix-icon="Search" style="width: 240px;"
                       @keyup.enter="loadPost"></el-input>
             <el-button type="primary" style="margin-left: 8px;" @click="loadPost">查询</el-button>
-            <el-button type="success" @click="resetParam">重置</el-button>
+            <el-button @click="resetParam">重置</el-button>
 
             <el-button type="primary" style="margin-left: 8px;" @click="add">新增</el-button>
         </div>
         <div class="table-card">
             <el-table :data="tableData"
-                  :header-cell-style="{ background: '#F7F8FC', color: '#4A5568', fontWeight: '600' }"
+                  
                   border
                   stripe
             >
@@ -243,7 +243,7 @@
         padding: 0;
     }
     .search-bar {
-        background: #FFFFFF;
+        background: var(--card);
         padding: 16px 20px;
         border-radius: 10px;
         margin-bottom: 16px;
@@ -252,7 +252,7 @@
         align-items: center;
     }
     .table-card {
-        background: #FFFFFF;
+        background: var(--card);
         padding: 20px;
         border-radius: 10px;
         box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);

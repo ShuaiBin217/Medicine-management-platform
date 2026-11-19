@@ -21,15 +21,15 @@
             </el-select>
 
             <el-button type="primary" style="margin-left: 8px;" @click="loadPost">查询</el-button>
-            <el-button type="success" @click="resetParam">重置</el-button>
+            <el-button @click="resetParam">重置</el-button>
 
             <el-button type="primary" style="margin-left: 8px;" @click="add" v-if="user.roleId!=2">新增</el-button>
-            <el-button type="primary" style="margin-left: 8px;" @click="inGoods" v-if="user.roleId!=2">采购</el-button>
-            <el-button type="primary" style="margin-left: 8px;" @click="outGoods" v-if="user.roleId!=2">发药</el-button>
+            <el-button style="margin-left: 8px;" @click="inGoods" v-if="user.roleId!=2">采购</el-button>
+            <el-button style="margin-left: 8px;" @click="outGoods" v-if="user.roleId!=2">发药</el-button>
         </div>
         <div class="table-card">
             <el-table :data="tableData"
-                  :header-cell-style="{ background: '#F7F8FC', color: '#4A5568', fontWeight: '600' }"
+                  
                   border
                   stripe
                   highlight-current-row
@@ -52,7 +52,7 @@
                 </el-table-column>
                 <el-table-column prop="operate" label="操作" v-if="user.roleId!=2">
                     <template #default="scope">
-                        <el-button size="small" type="success" @click="mod(scope.row)">编辑</el-button>
+                        <el-button size="small" @click="mod(scope.row)">编辑</el-button>
                         <el-popconfirm
                                 title="确定删除吗？"
                                 @confirm="del(scope.row.id)"
@@ -541,7 +541,7 @@
         padding: 0;
     }
     .search-bar {
-        background: #FFFFFF;
+        background: var(--card);
         padding: 16px 20px;
         border-radius: 10px;
         margin-bottom: 16px;
@@ -552,7 +552,7 @@
         gap: 0;
     }
     .table-card {
-        background: #FFFFFF;
+        background: var(--card);
         padding: 20px;
         border-radius: 10px;
         box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
@@ -563,12 +563,12 @@
         margin-top: 16px;
     }
     .table-card :deep(.el-table__body tr.current-row > td) {
-        background-color: #4A6CF7 !important;
-        color: #FFFFFF !important;
+        background-color: var(--raised) !important;
+        color: var(--ink) !important;
     }
     .table-card :deep(.el-table__body tr.current-row > td .el-tag) {
-        background-color: rgba(255, 255, 255, 0.2) !important;
-        color: #FFFFFF !important;
-        border-color: rgba(255, 255, 255, 0.3) !important;
+        background-color: var(--raised) !important;
+        color: var(--ink) !important;
+        border-color: var(--line) !important;
     }
 </style>
