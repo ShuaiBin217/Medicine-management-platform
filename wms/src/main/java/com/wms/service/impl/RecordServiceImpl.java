@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wms.entity.Goods;
 import com.wms.entity.Record;
+import com.wms.entity.RecordRes;
 import com.wms.mapper.GoodsMapper;
 import com.wms.mapper.RecordMapper;
 import com.wms.service.GoodsService;
@@ -38,6 +39,11 @@ public class RecordServiceImpl extends ServiceImpl<RecordMapper, Record> impleme
     @Override
     public IPage pageCC(IPage<Record> page, Wrapper wrapper) {
         return recordMapper.pageCC(page,wrapper);
+    }
+
+    @Override
+    public List<RecordRes> listFlow(String name, Integer goodsId, Integer userId) {
+        return recordMapper.listFlow(name, goodsId, userId);
     }
 
     /**

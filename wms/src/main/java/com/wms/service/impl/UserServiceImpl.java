@@ -17,7 +17,7 @@ import javax.annotation.Resource;
  * </p>
  *
  * @author wms
- * @since 2022-07-21
+ * @since 2024-07-21
  */
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {

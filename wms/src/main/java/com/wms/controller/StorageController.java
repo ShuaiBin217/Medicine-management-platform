@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wms.common.CacheConstant;
+import com.wms.common.IdSequence;
 import com.wms.common.QueryPageParam;
 import com.wms.common.Result;
 import com.wms.entity.Storage;
@@ -26,6 +27,9 @@ public class StorageController {
 
     @Autowired
     private RedisService redisService;
+
+    @Autowired
+    private IdSequence idSequence;
 
     @PostMapping("/save")
     public Result save(@RequestBody Storage storage){
@@ -49,6 +53,7 @@ public class StorageController {
     public Result del(@RequestParam String id){
         boolean result = storageService.removeById(id);
         if (result) {
+            idSequence.reset("storage");
             clearStorageCache();
         }
         return result ? Result.suc() : Result.fail();

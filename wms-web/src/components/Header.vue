@@ -20,6 +20,9 @@
                         <el-dropdown-item @click="toUser">
                             <el-icon style="margin-right: 8px;"><User/></el-icon>个人中心
                         </el-dropdown-item>
+                        <el-dropdown-item @click="openPwd">
+                            <el-icon style="margin-right: 8px;"><Lock/></el-icon>修改密码
+                        </el-dropdown-item>
                         <el-dropdown-item @click="logout" divided>
                             <el-icon style="margin-right: 8px;"><SwitchButton/></el-icon>退出登录
                         </el-dropdown-item>
@@ -27,6 +30,27 @@
                 </template>
             </el-dropdown>
         </div>
+
+        <el-dialog v-model="pwdVisible" title="修改密码" width="380px" center>
+            <el-form ref="pwdForm" :model="pwdForm" :rules="pwdRules" label-width="90px">
+                <el-form-item label="原密码" prop="oldPassword">
+                    <el-input v-model="pwdForm.oldPassword" type="password" show-password autocomplete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="新密码" prop="newPassword">
+                    <el-input v-model="pwdForm.newPassword" type="password" show-password autocomplete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="确认密码" prop="confirmPassword">
+                    <el-input v-model="pwdForm.confirmPassword" type="password" show-password autocomplete="off"
+                              @keyup.enter="submitPwd"></el-input>
+                </el-form-item>
+            </el-form>
+            <template #footer>
+                <span class="dialog-footer">
+                    <el-button @click="pwdVisible = false">取 消</el-button>
+                    <el-button type="primary" :loading="pwdSubmitting" @click="submitPwd">确 定</el-button>
+                </span>
+            </template>
+        </el-dialog>
     </div>
 </template>
 
@@ -34,8 +58,35 @@
     export default {
         name: "Header",
         data(){
+            let validateConfirm = (rule, value, callback) => {
+                if (value !== this.pwdForm.newPassword) {
+                    callback(new Error('两次输入的新密码不一致'));
+                } else {
+                    callback();
+                }
+            };
             return {
-                user : JSON.parse(sessionStorage.getItem('CurUser'))
+                user : JSON.parse(sessionStorage.getItem('CurUser')),
+                pwdVisible: false,
+                pwdSubmitting: false,
+                pwdForm: {
+                    oldPassword: '',
+                    newPassword: '',
+                    confirmPassword: ''
+                },
+                pwdRules: {
+                    oldPassword: [
+                        {required: true, message: '请输入原密码', trigger: 'blur'}
+                    ],
+                    newPassword: [
+                        {required: true, message: '请输入新密码', trigger: 'blur'},
+                        {min: 3, max: 20, message: '长度在 3 到 20 个字符', trigger: 'blur'}
+                    ],
+                    confirmPassword: [
+                        {required: true, message: '请再次输入新密码', trigger: 'blur'},
+                        {validator: validateConfirm, trigger: 'blur'}
+                    ]
+                }
             }
         },
         props:{
@@ -45,6 +96,40 @@
             handleCommand(cmd){
                 if (cmd === 'toUser') this.toUser()
                 else if (cmd === 'logout') this.logout()
+            },
+            openPwd(){
+                this.pwdVisible = true
+                this.$nextTick(() => {
+                    this.pwdForm.oldPassword = ''
+                    this.pwdForm.newPassword = ''
+                    this.pwdForm.confirmPassword = ''
+                    if (this.$refs.pwdForm) this.$refs.pwdForm.clearValidate()
+                })
+            },
+            submitPwd(){
+                if (this.pwdSubmitting) return
+                this.$refs.pwdForm.validate((valid) => {
+                    if (!valid) return
+                    this.pwdSubmitting = true
+                    this.$axios.post(this.$httpUrl + '/user/changePassword', {
+                        oldPassword: this.pwdForm.oldPassword,
+                        newPassword: this.pwdForm.newPassword
+                    }).then(res => res.data).then(res => {
+                        if (res.code == 200) {
+                            this.pwdVisible = false
+                            this.$message({message: '密码修改成功，请重新登录', type: 'success'})
+                            this.forceLogout()
+                        } else {
+                            this.$message({message: res.msg || '修改失败', type: 'error'})
+                        }
+                    }).finally(() => { this.pwdSubmitting = false })
+                })
+            },
+            forceLogout(){
+                this.$axios.post(this.$httpUrl + '/user/logout').finally(() => {
+                    sessionStorage.clear()
+                    this.$router.push('/')
+                })
             },
             toUser(){
                 console.log('to_user')

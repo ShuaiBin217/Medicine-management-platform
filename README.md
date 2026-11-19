@@ -11,11 +11,13 @@ DrugWMS 是一套面向药房、医药仓库的智能化管理平台，覆盖药
 ### 基础业务模块
 - **用户登录与权限控制**：基于角色的动态菜单（超级管理员 / 管理员 / 普通用户）
 - **管理员管理**：账号的增删改查
-- **用户管理**：业务用户维护
+- **用户管理**：业务用户维护；支持停用 / 启用、重置密码
+- **账号安全**：登录密码 BCrypt 加密存储；右上角「修改密码」校验原密码后修改；管理员可在用户 / 管理员管理中重置他人密码，编辑资料时密码留空表示不修改
 - **仓库管理**：药房 / 仓库信息维护
 - **物品分类管理**：药品分类维护
-- **物品管理**：药品库存维护，支持按名称、分类、仓库筛选
-- **记录管理**：入库 / 出库流水记录，自动更新库存数量
+- **物品管理**：药品库存维护，支持按名称、分类、仓库筛选；点击药品名进入药品流转详情
+- **记录管理**：入库 / 出库流水记录，自动更新库存数量；出库为"申请 → 确认"两步，可按待确认 / 已确认筛选并确认或回滚
+- **药品流转详细**：单药维度追溯——同名药品在各药房的库存分布、完整出入库流水、待确认单据
 
 ### AI 智能模块
 - **智能小药助手**：基于 DeepSeek 大模型 + LangChain 的 AI 问答，SSE 流式输出
@@ -100,7 +102,7 @@ springboot_vue_wms/
 │   │   │   ├── user/                 # 用户管理
 │   │   │   ├── storage/              # 仓库管理
 │   │   │   ├── goodstype/            # 分类管理
-│   │   │   ├── goods/                # 物品管理
+│   │   │   ├── goods/                # 物品管理、药品流转详情（GoodsDetail.vue）
 │   │   │   └── record/               # 记录管理
 │   │   ├── stores/                    # Pinia 状态管理
 │   │   ├── router/                    # Vue Router 4
@@ -218,13 +220,19 @@ npm run build
 | 模块 | 接口 | 方法 | 说明 |
 |------|------|------|------|
 | 用户 | /user/login | POST | 登录 |
+| 用户 | /user/changePassword | POST | 修改自己的密码（校验原密码） |
+| 用户 | /user/resetPassword | POST | 管理员重置他人密码 |
 | 用户 | /user/listPageC1 | POST | 用户分页查询 |
 | 菜单 | /menu/list | GET | 按角色获取菜单 |
 | 仓库 | /storage/listPage | POST | 仓库分页 |
 | 分类 | /goodstype/listPage | POST | 分类分页 |
 | 物品 | /goods/listPage | POST | 物品分页 |
-| 记录 | /record/listPage | POST | 记录分页 |
-| 记录 | /record/save | POST | 入库 / 出库 |
+| 物品 | /goods/detail | GET | 药品流转详情（库存分布 + 出入库流水） |
+| 记录 | /record/listPage | POST | 记录分页（可按 status 过滤待确认 / 已确认） |
+| 记录 | /record/save | POST | 入库 |
+| 记录 | /record/preDeduct | POST | 出库申请（预扣减库存，生成待确认单） |
+| 记录 | /record/confirmDeduct | POST | 确认出库 |
+| 记录 | /record/rollbackDeduct | POST | 回滚出库（恢复库存并删除单据） |
 
 ### AI 接口（Python AI 服务 :8091）
 

@@ -38,6 +38,9 @@
                 <el-table-column prop="id" label="ID" width="60">
                 </el-table-column>
                 <el-table-column prop="name" label="药品名" width="180">
+                    <template #default="scope">
+                        <el-link type="primary" :underline="false" @click="goDetail(scope.row)">{{ scope.row.name }}</el-link>
+                    </template>
                 </el-table-column>
                 <el-table-column prop="storage" label="药房" width="180" :formatter="formatStorage">
                 </el-table-column>
@@ -66,7 +69,7 @@
                     @size-change="handleSizeChange"
                     @current-change="handleCurrentChange"
                     :current-page="pageNum"
-                    :page-sizes="[5, 10, 20,30]"
+                    :page-sizes="[10, 20, 30]"
                     :page-size="pageSize"
                     layout="total, sizes, prev, pager, next, jumper"
                     :total="total">
@@ -269,6 +272,9 @@
             selectCurrentChange(val) {
                 this.currentRow = val;
             },
+            goDetail(row){
+                this.$router.push({path:'/GoodsDetail', query:{id: row.id}})
+            },
             formatStorage(row){
                 let temp =  this.storageData.find(item=>{
                     return item.id == row.storage
@@ -431,7 +437,8 @@
             },
             doInGoods(){
                 if(this.submitting) return
-                const actionText = this.form1.action === '1' ? '采购入库' : '发药出库'
+                const isOut = this.form1.action === '2'
+                const actionText = isOut ? '发药出库（提交后为待确认，确认后才真正扣减）' : '采购入库'
                 this.$confirm(
                     `确定执行${actionText}操作？药品：${this.form1.goodsname}，数量：${this.form1.count}`,
                     '库存操作确认',
@@ -446,9 +453,11 @@
                 }).catch(() => {})
             },
             submitInGoods(){
-                this.$axios.post(this.$httpUrl+'/record/save',this.form1).then(res=>res.data).then(res=>{
+                // 出库走预扣减：立即占库存并生成待确认记录；入库直接生效
+                const url = this.form1.action === '2' ? '/record/preDeduct' : '/record/save'
+                this.$axios.post(this.$httpUrl+url,this.form1).then(res=>res.data).then(res=>{
                     if(res.code==200){
-                        this.$message.success('操作成功！')
+                        this.$message.success(this.form1.action === '2' ? '已提交出库申请，请到「记录管理」确认' : '操作成功！')
                         this.inDialogVisible = false
                         this.loadPost()
                         this.resetInForm()

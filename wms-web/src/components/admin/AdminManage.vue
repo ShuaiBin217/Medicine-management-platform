@@ -47,9 +47,12 @@
                 </el-table-column>
                 <el-table-column prop="phone" label="电话" width="180">
                 </el-table-column>
-                <el-table-column prop="operate" label="操作" min-width="220">
+                <el-table-column prop="operate" label="操作" min-width="320">
                     <template #default="scope">
                         <el-button size="small" type="success" @click="mod(scope.row)">编辑</el-button>
+                        <el-button size="small" type="info" style="margin-left: 8px;"
+                                   v-if="user.id != scope.row.id && (scope.row.roleId != 0 || user.roleId == 0)"
+                                   @click="openReset(scope.row)">重置密码</el-button>
                         <el-button
                             size="small"
                             :type="scope.row.isvalid === 'Y' ? 'warning' : 'primary'"
@@ -72,7 +75,7 @@
                     @size-change="handleSizeChange"
                     @current-change="handleCurrentChange"
                     :current-page="pageNum"
-                    :page-sizes="[5, 10, 20,30]"
+                    :page-sizes="[10, 20, 30]"
                     :page-size="pageSize"
                     layout="total, sizes, prev, pager, next, jumper"
                     :total="total">
@@ -98,7 +101,8 @@
                 </el-form-item>
                 <el-form-item label="密码" prop="password">
                     <el-col :span="20">
-                        <el-input v-model="form.password"></el-input>
+                        <el-input v-model="form.password"
+                                  :placeholder="form.id ? '留空则不修改密码' : '请输入密码'"></el-input>
                     </el-col>
                 </el-form-item>
                 <el-form-item label="年龄" prop="age">
@@ -125,6 +129,24 @@
                 </span>
             </template>
         </el-dialog>
+
+        <el-dialog title="重置密码" v-model="resetDialogVisible" width="380px" center>
+            <el-form ref="resetForm" :model="resetForm" :rules="resetRules" label-width="80px">
+                <el-form-item label="账号">
+                    <span>{{ resetUser.no }}（{{ resetUser.name }}）</span>
+                </el-form-item>
+                <el-form-item label="新密码" prop="password">
+                    <el-input v-model="resetForm.password" type="password" show-password
+                              placeholder="3 到 8 个字符" @keyup.enter="submitReset"></el-input>
+                </el-form-item>
+            </el-form>
+            <template #footer>
+                <span class="dialog-footer">
+                    <el-button @click="resetDialogVisible = false">取 消</el-button>
+                    <el-button type="primary" :loading="resetSubmitting" @click="submitReset">确 定</el-button>
+                </span>
+            </template>
+        </el-dialog>
     </div>
 </template>
 
@@ -138,6 +160,18 @@
                 }else{
                     callback();
                 }
+            };
+            let checkPassword = (rule, value, callback) => {
+                if (!value) {
+                    if (this.form.id) {
+                        return callback();
+                    }
+                    return callback(new Error('请输入密码'));
+                }
+                if (value.length < 3 || value.length > 8) {
+                    return callback(new Error('长度在 3 到 8 个字符'));
+                }
+                callback();
             };
             let checkDuplicate =(rule,value,callback)=>{
                 if(this.form.id){
@@ -154,7 +188,20 @@
             };
 
             return {
+                user: JSON.parse(sessionStorage.getItem('CurUser') || '{}'),
                 tableData: [],
+                resetDialogVisible: false,
+                resetSubmitting: false,
+                resetUser: {},
+                resetForm: {
+                    password: ''
+                },
+                resetRules: {
+                    password: [
+                        {required: true, message: '请输入新密码', trigger: 'blur'},
+                        {min: 3, max: 8, message: '长度在 3 到 8 个字符', trigger: 'blur'}
+                    ]
+                },
                 pageSize:10,
                 pageNum:1,
                 total:0,
@@ -191,8 +238,7 @@
                         {required: true, message: '请输入名字', trigger: 'blur'}
                     ],
                     password: [
-                        {required: true, message: '请输入密码', trigger: 'blur'},
-                        {min: 3, max: 8, message: '长度在 3 到 8 个字符', trigger: 'blur'}
+                        {validator: checkPassword, trigger: 'blur'}
                     ],
                     age: [
                         {required: true, message: '请输入年龄', trigger: 'blur'},
@@ -210,6 +256,32 @@
         methods:{
             resetForm() {
                 this.$refs.form.resetFields();
+            },
+            openReset(row){
+                this.resetUser = row
+                this.resetForm.password = ''
+                this.resetDialogVisible = true
+                this.$nextTick(() => {
+                    if (this.$refs.resetForm) this.$refs.resetForm.clearValidate()
+                })
+            },
+            submitReset(){
+                if (this.resetSubmitting) return
+                this.$refs.resetForm.validate((valid) => {
+                    if (!valid) return
+                    this.resetSubmitting = true
+                    this.$axios.post(this.$httpUrl + '/user/resetPassword', {
+                        id: this.resetUser.id,
+                        password: this.resetForm.password
+                    }).then(res => res.data).then(res => {
+                        if (res.code == 200) {
+                            this.$message({message: '密码已重置', type: 'success'})
+                            this.resetDialogVisible = false
+                        } else {
+                            this.$message({message: res.msg || '重置失败', type: 'error'})
+                        }
+                    }).finally(() => { this.resetSubmitting = false })
+                })
             },
             toggleValid(row){
                 this.$axios.get(this.$httpUrl+'/user/toggleValid?id='+row.id).then(res=>res.data).then(res=>{

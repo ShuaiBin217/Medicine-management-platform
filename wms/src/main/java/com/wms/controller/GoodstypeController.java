@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wms.common.CacheConstant;
+import com.wms.common.IdSequence;
 import com.wms.common.QueryPageParam;
 import com.wms.common.Result;
 import com.wms.entity.Goodstype;
@@ -25,6 +26,9 @@ public class GoodstypeController {
 
     @Autowired
     private RedisService redisService;
+
+    @Autowired
+    private IdSequence idSequence;
 
     @PostMapping("/save")
     public Result save(@RequestBody Goodstype goodstype){
@@ -48,6 +52,7 @@ public class GoodstypeController {
     public Result del(@RequestParam String id){
         boolean result = goodstypeService.removeById(id);
         if (result) {
+            idSequence.reset("goodstype");
             clearCategoryCache();
         }
         return result ? Result.suc() : Result.fail();

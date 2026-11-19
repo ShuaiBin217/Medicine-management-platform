@@ -13,7 +13,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * </p>
  *
  * @author wms
- * @since 2022-07-21
+ * @since 2024-07-21
  */
 public interface UserService extends IService<User> {
 

@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.wms.common.AuthUtils;
+import com.wms.common.IdSequence;
 import com.wms.common.QueryPageParam;
 import com.wms.common.Result;
 import com.wms.entity.Menu;
@@ -14,6 +16,7 @@ import com.wms.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -39,6 +42,8 @@ public class UserController {
     @Autowired
     private MenuService menuService;
     @Autowired
+    private IdSequence idSequence;
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @GetMapping("/list")
@@ -52,18 +57,47 @@ public class UserController {
     }
     //新增
     @PostMapping("/save")
+    @PreAuthorize("hasAnyRole('0','1')")
     public Result save(@RequestBody User user){
+        // 管理员不能新增超级管理员
+        if (user.getRoleId() != null && user.getRoleId() == 0 && !isSuperAdmin()) {
+            return Result.fail("只有超级管理员可以新增超级管理员");
+        }
+        if (StringUtils.isBlank(user.getPassword())) {
+            return Result.fail("密码不能为空");
+        }
+        encodePasswordIfPresent(user);
         return userService.save(user)?Result.suc():Result.fail();
     }
     //更新
     @PostMapping("/update")
+    @PreAuthorize("hasAnyRole('0','1')")
     public Result update(@RequestBody User user){
+        Result denied = checkAdminTarget(user.getId());
+        if (denied != null) {
+            return denied;
+        }
+        // 管理员不能把别人提升为超级管理员
+        if (user.getRoleId() != null && user.getRoleId() == 0 && !isSuperAdmin()) {
+            return Result.fail("只有超级管理员可以设置超级管理员角色");
+        }
+        // 密码留空表示不修改；填写则加密后保存
+        encodePasswordIfPresent(user);
         return userService.updateById(user)?Result.suc():Result.fail();
     }
     //删除
     @GetMapping("/del")
+    @PreAuthorize("hasAnyRole('0','1')")
     public Result del(@RequestParam String id){
-        return userService.removeById(id)?Result.suc():Result.fail();
+        Result denied = checkAdminTarget(parseId(id));
+        if (denied != null) {
+            return denied;
+        }
+        boolean removed = userService.removeById(id);
+        if (removed) {
+            idSequence.reset("user");
+        }
+        return removed ? Result.suc() : Result.fail();
     }
 
     //登录
@@ -106,6 +140,8 @@ public class UserController {
                 dbUser.getNo(), null,
                 Collections.singletonList(new SimpleGrantedAuthority(roleName))
         );
+        // 把用户 id 放进 details，业务代码取操作人时不再依赖前端传参
+        auth.setDetails(dbUser.getId());
         SecurityContextHolder.getContext().setAuthentication(auth);
         // 同步到 Spring Session（Redis）
         session.setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
@@ -123,24 +159,48 @@ public class UserController {
         return Result.suc();
     }
 
-    //修改
+    //修改（个人资料）：只允许改自己，且不允许改角色、启用状态，防止越权提权
     @PostMapping("/mod")
     public boolean mod(@RequestBody User user){
+        Integer currentUserId = AuthUtils.currentUserId();
+        if (currentUserId != null) {
+            user.setId(currentUserId);
+        }
+        user.setRoleId(null);
+        user.setIsvalid(null);
+        encodePasswordIfPresent(user);
         return userService.updateById(user);
     }
     //新增或修改
     @PostMapping("/saveOrMod")
+    @PreAuthorize("hasAnyRole('0','1')")
     public boolean saveOrMod(@RequestBody User user){
+        if (user.getId() != null && checkAdminTarget(user.getId()) != null) {
+            return false;
+        }
+        if (user.getRoleId() != null && user.getRoleId() == 0 && !isSuperAdmin()) {
+            return false;
+        }
+        encodePasswordIfPresent(user);
         return userService.saveOrUpdate(user);
     }
     //删除
     @GetMapping("/delete")
+    @PreAuthorize("hasAnyRole('0','1')")
     public boolean delete(Integer id){
-        return userService.removeById(id);
+        if (checkAdminTarget(id) != null) {
+            return false;
+        }
+        boolean removed = userService.removeById(id);
+        if (removed) {
+            idSequence.reset("user");
+        }
+        return removed;
     }
 
     //停用/启用账号
     @GetMapping("/toggleValid")
+    @PreAuthorize("hasAnyRole('0','1')")
     public Result toggleValid(@RequestParam Integer id){
         User user = userService.getById(id);
         if(user == null){
@@ -246,5 +306,120 @@ public class UserController {
         System.out.println("total=="+result.getTotal());
 
         return Result.suc(result.getRecords(),result.getTotal());
+    }
+
+    //修改自己的密码（校验原密码）
+    @PostMapping("/changePassword")
+    public Result changePassword(@RequestBody HashMap<String, String> body){
+        Integer uid = AuthUtils.currentUserId();
+        if (uid == null) {
+            return Result.fail("登录状态已失效，请重新登录");
+        }
+        User dbUser = userService.getById(uid);
+        if (dbUser == null) {
+            return Result.fail("用户不存在");
+        }
+        String oldPwd = body.get("oldPassword");
+        String newPwd = body.get("newPassword");
+        if (StringUtils.isBlank(oldPwd) || StringUtils.isBlank(newPwd)) {
+            return Result.fail("原密码和新密码不能为空");
+        }
+        if (!passwordMatches(oldPwd, dbUser.getPassword())) {
+            return Result.fail("原密码不正确");
+        }
+        String trimmed = newPwd.trim();
+        if (trimmed.length() < 3 || trimmed.length() > 20) {
+            return Result.fail("新密码长度需在 3 到 20 个字符之间");
+        }
+        if (passwordMatches(trimmed, dbUser.getPassword())) {
+            return Result.fail("新密码不能与原密码相同");
+        }
+        User update = new User();
+        update.setId(uid);
+        update.setPassword(passwordEncoder.encode(trimmed));
+        return userService.updateById(update) ? Result.suc() : Result.fail("修改失败，请稍后重试");
+    }
+
+    //管理员重置他人密码
+    @PostMapping("/resetPassword")
+    @PreAuthorize("hasAnyRole('0','1')")
+    public Result resetPassword(@RequestBody HashMap<String, Object> body){
+        Integer targetId = parseId(String.valueOf(body.get("id")));
+        if (targetId == null) {
+            return Result.fail("参数错误");
+        }
+        Result denied = checkAdminTarget(targetId);
+        if (denied != null) {
+            return denied;
+        }
+        Integer currentId = AuthUtils.currentUserId();
+        if (currentId != null && currentId.equals(targetId)) {
+            return Result.fail("请使用“修改密码”修改自己的密码");
+        }
+        String newPwd = body.get("password") == null ? null : String.valueOf(body.get("password"));
+        if (StringUtils.isBlank(newPwd)) {
+            return Result.fail("新密码不能为空");
+        }
+        String trimmed = newPwd.trim();
+        if (trimmed.length() < 3 || trimmed.length() > 20) {
+            return Result.fail("密码长度需在 3 到 20 个字符之间");
+        }
+        User update = new User();
+        update.setId(targetId);
+        update.setPassword(passwordEncoder.encode(trimmed));
+        return userService.updateById(update) ? Result.suc() : Result.fail("重置失败，请稍后重试");
+    }
+
+    /**
+     * 密码为空时保持原值（updateById 忽略 null），否则用 BCrypt 加密后保存
+     */
+    private void encodePasswordIfPresent(User user) {
+        if (user.getPassword() == null || user.getPassword().trim().isEmpty()) {
+            user.setPassword(null);
+        } else {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+        }
+    }
+
+    /**
+     * 兼容历史明文密码与 BCrypt 密码
+     */
+    private boolean passwordMatches(String raw, String stored) {
+        if (raw == null || stored == null) {
+            return false;
+        }
+        if (stored.startsWith("$2a$") || stored.startsWith("$2b$") || stored.startsWith("$2y$")) {
+            return passwordEncoder.matches(raw, stored);
+        }
+        return raw.equals(stored);
+    }
+
+    /**
+     * 保护超级管理员账号：目标是超级管理员时，只有超级管理员角色可以操作
+     */
+    private Result checkAdminTarget(Integer targetId) {
+        if (targetId == null) {
+            return null;
+        }
+        User target = userService.getById(targetId);
+        if (target == null) {
+            return Result.fail("用户不存在");
+        }
+        if (target.getRoleId() != null && target.getRoleId() == 0 && !isSuperAdmin()) {
+            return Result.fail("只有超级管理员可以修改超级管理员");
+        }
+        return null;
+    }
+
+    private boolean isSuperAdmin() {
+        return Integer.valueOf(0).equals(AuthUtils.currentRole());
+    }
+
+    private Integer parseId(String id) {
+        try {
+            return Integer.valueOf(id);
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 }

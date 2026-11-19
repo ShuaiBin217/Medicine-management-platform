@@ -19,6 +19,10 @@
                         :value="item.id">
                 </el-option>
             </el-select>
+            <el-select v-model="status" placeholder="状态" clearable style="margin-left: 8px; width: 130px;">
+                <el-option label="待确认" value="0"></el-option>
+                <el-option label="已确认" value="1"></el-option>
+            </el-select>
 
             <el-button type="primary" style="margin-left: 8px;" @click="loadPost">查询</el-button>
             <el-button type="success" @click="resetParam">重置</el-button>
@@ -49,18 +53,44 @@
                 </el-table-column>
                 <el-table-column prop="username" label="取药人" width="180">
                 </el-table-column>
-                <el-table-column prop="count" label="数量" width="180">
+                <el-table-column prop="count" label="数量" width="120">
+                    <template #default="scope">
+                        <span :style="{color: scope.row.count >= 0 ? '#22A06B' : '#E6A23C', fontWeight: 600}">
+                            {{ scope.row.count >= 0 ? '+' : '' }}{{ scope.row.count }}
+                        </span>
+                    </template>
+                </el-table-column>
+                <el-table-column label="状态" width="110">
+                    <template #default="scope">
+                        <el-tag v-if="scope.row.status === 0" type="warning" size="small">待确认</el-tag>
+                        <el-tag v-else type="success" size="small">已确认</el-tag>
+                    </template>
                 </el-table-column>
                 <el-table-column prop="createtime" label="操作时间" width="180">
                 </el-table-column>
                 <el-table-column prop="remark" label="备注">
+                </el-table-column>
+                <el-table-column label="操作" width="160" v-if="user.roleId!=2">
+                    <template #default="scope">
+                        <template v-if="scope.row.status === 0">
+                            <el-button size="small" type="success" :loading="submitting"
+                                       @click="confirmDeduct(scope.row)">确认</el-button>
+                            <el-popconfirm title="回滚后库存恢复、该单据删除，确定吗？"
+                                           @confirm="rollbackDeduct(scope.row)">
+                                <template #reference>
+                                    <el-button size="small" type="danger">回滚</el-button>
+                                </template>
+                            </el-popconfirm>
+                        </template>
+                        <span v-else class="muted">—</span>
+                    </template>
                 </el-table-column>
             </el-table>
             <el-pagination
                     @size-change="handleSizeChange"
                     @current-change="handleCurrentChange"
                     :current-page="pageNum"
-                    :page-sizes="[5, 10, 20,30]"
+                    :page-sizes="[10, 20, 30]"
                     :page-size="pageSize"
                     layout="total, sizes, prev, pager, next, jumper"
                     :total="total">
@@ -85,6 +115,7 @@
                 name:'',
                 storage:'',
                 goodstype:'',
+                status:'',
                 selectedIds:[],
                 submitting:false,
                 centerDialogVisible:false,
@@ -137,6 +168,34 @@
                     this.$message.error('网络错误')
                 }).finally(() => { this.submitting = false })
             },
+            confirmDeduct(row){
+                if(this.submitting) return
+                this.submitting = true
+                this.$axios.post(this.$httpUrl+'/record/confirmDeduct', null, {params:{id: row.id}}).then(res=>res.data).then(res=>{
+                    if(res.code==200){
+                        this.$message.success('已确认')
+                        this.loadPost()
+                    }else{
+                        this.$message.error(res.msg || '确认失败')
+                    }
+                }).catch(()=>{
+                    this.$message.error('网络错误')
+                }).finally(()=>{ this.submitting = false })
+            },
+            rollbackDeduct(row){
+                if(this.submitting) return
+                this.submitting = true
+                this.$axios.post(this.$httpUrl+'/record/rollbackDeduct', null, {params:{id: row.id}}).then(res=>res.data).then(res=>{
+                    if(res.code==200){
+                        this.$message.success('已回滚，库存已恢复')
+                        this.loadPost()
+                    }else{
+                        this.$message.error(res.msg || '回滚失败')
+                    }
+                }).catch(()=>{
+                    this.$message.error('网络错误')
+                }).finally(()=>{ this.submitting = false })
+            },
             formatStorage(row){
                 let temp =  this.storageData.find(item=>{
                     return item.id == row.storage
@@ -167,6 +226,7 @@
                 this.name=''
                 this.storage=''
                 this.goodstype=''
+                this.status=''
             },
             loadStorage(){
                 this.$axios.get(this.$httpUrl+'/storage/list').then(res=>res.data).then(res=>{
@@ -194,6 +254,7 @@
                         name:this.name,
                         goodstype:this.goodstype+'',
                         storage:this.storage+'',
+                        status:this.status+'',
                         roleId:this.user.roleId+'',
                         userId:this.user.id+''
                     }
@@ -238,5 +299,8 @@
         display: flex;
         justify-content: center;
         margin-top: 16px;
+    }
+    .muted {
+        color: #A0AEC0;
     }
 </style>

@@ -11,6 +11,25 @@
          and b.storage=c.id and b.goodsType=d.id*/
         ${ew.customSqlSegment}
     </select>
+    <!-- 药品流转页：某药品的全部出入库流水（按时间倒序） -->
+    <select id="listFlow" resultType="com.wms.entity.RecordRes">
+        select a.*, b.name goodsname, c.name storagename, d.name goodstypename,
+        (select u.name from user u where u.id = a.userid) username,
+        (select u.name from user u where u.id = a.admin_id) adminname
+        from record a, goods b, storage c, goodsType d
+        where a.goods = b.id and b.storage = c.id and b.goodsType = d.id
+        <if test="goodsId != null">
+            and a.goods = #{goodsId}
+        </if>
+        <if test="name != null and name != ''">
+            and b.name = #{name}
+        </if>
+        <if test="userId != null">
+            and a.userid = #{userId}
+        </if>
+        order by a.createtime desc, a.id desc
+    </select>
+
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.wms.entity.Record">
         <id column="id" property="id" />

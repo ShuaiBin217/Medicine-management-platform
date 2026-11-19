@@ -3,6 +3,7 @@ package com.wms.service.impl;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wms.entity.Goods;
+import com.wms.entity.GoodsView;
 import com.wms.entity.User;
 import com.wms.mapper.GoodsMapper;
 import com.wms.mapper.UserMapper;
@@ -11,6 +12,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * <p>
@@ -27,5 +29,15 @@ public class GoodsServiceImpl extends ServiceImpl<GoodsMapper, Goods> implements
     @Override
     public IPage pageCC(IPage<Goods> page, Wrapper wrapper) {
         return goodsMapper.pageCC(page,wrapper);
+    }
+
+    @Override
+    public GoodsView detailView(Integer id) {
+        return goodsMapper.detailView(id);
+    }
+
+    @Override
+    public List<GoodsView> listSameName(String name) {
+        return goodsMapper.listSameName(name);
     }
 }

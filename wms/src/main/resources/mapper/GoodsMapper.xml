@@ -5,6 +5,27 @@
     <select id="pageCC" resultType="com.wms.entity.Goods">
         select * from goods ${ew.customSqlSegment}
     </select>
+
+    <!-- 药品流转页：单个药品（含药房名、分类名） -->
+    <select id="detailView" resultType="com.wms.entity.GoodsView">
+        select g.id, g.name, g.storage, g.goodsType, g.count, g.remark, g.version,
+               c.name storagename, d.name goodstypename
+        from goods g
+        left join storage c on g.storage = c.id
+        left join goodsType d on g.goodsType = d.id
+        where g.id = #{id}
+    </select>
+
+    <!-- 药品流转页：同名药品在各药房的分布 -->
+    <select id="listSameName" resultType="com.wms.entity.GoodsView">
+        select g.id, g.name, g.storage, g.goodsType, g.count, g.remark, g.version,
+               c.name storagename, d.name goodstypename
+        from goods g
+        left join storage c on g.storage = c.id
+        left join goodsType d on g.goodsType = d.id
+        where g.name = #{name}
+        order by g.count desc, g.id asc
+    </select>
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.wms.entity.Goods">
         <id column="id" property="id" />

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wms.entity.Goods;
 import com.wms.entity.Record;
+import com.wms.entity.RecordRes;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import java.util.List;
@@ -19,6 +20,15 @@ import java.util.List;
 public interface RecordService extends IService<Record> {
 
     IPage pageCC(IPage<Record> page, Wrapper wrapper);
+
+    /**
+     * 查询某药品的出入库流水（按时间倒序）
+     *
+     * @param name    药品名，为空不过滤
+     * @param goodsId 药品 id，为空不过滤
+     * @param userId  取药人 id，普通用户只查自己的流水
+     */
+    List<RecordRes> listFlow(String name, Integer goodsId, Integer userId);
 
     /**
      * 事务性保存流转记录并同步更新库存（含乐观锁防超卖）
