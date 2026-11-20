@@ -586,8 +586,11 @@
         margin-top: 16px;
     }
     .table-card :deep(.el-table__body tr.current-row > td) {
-        background-color: var(--raised) !important;
+        background-color: var(--accent-soft) !important;
         color: var(--ink) !important;
+    }
+    .table-card :deep(.el-table__body tr.current-row > td:first-child) {
+        box-shadow: inset 3px 0 0 var(--accent);
     }
     .table-card :deep(.el-table__body tr.current-row > td .el-tag) {
         background-color: var(--raised) !important;
