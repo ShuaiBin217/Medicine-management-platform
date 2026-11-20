@@ -168,7 +168,7 @@
                 </el-form-item>
                 <el-form-item label="数量" prop="count">
                     <el-col :span="20">
-                        <el-input v-model="form1.count"></el-input>
+                        <el-input v-model="form1.count" placeholder="请输入数量" inputmode="numeric"></el-input>
                     </el-col>
                 </el-form-item>
                 <el-form-item label="备注" prop="remark">
@@ -200,6 +200,22 @@
                 }else{
                     callback();
                 }
+            };
+            let checkFlowCount = (rule, value, callback) => {
+                if (value === '' || value === null || value === undefined || String(value).trim() === '') {
+                    callback(new Error('请输入数量'));
+                    return;
+                }
+                const count = Number(value);
+                if (!Number.isInteger(count) || count <= 0) {
+                    callback(new Error('数量必须是大于 0 的整数'));
+                    return;
+                }
+                if (count > 9999) {
+                    callback(new Error('单次数量不能超过 9999'));
+                    return;
+                }
+                callback();
             };
 
             return {
@@ -238,7 +254,9 @@
                     action:'1'
                 },
                 rules1: {
-
+                    count: [
+                        {validator: checkFlowCount, trigger: 'blur'}
+                    ]
                 },
                 rules: {
                     name: [
@@ -438,19 +456,27 @@
             doInGoods(){
                 if(this.submitting) return
                 const isOut = this.form1.action === '2'
-                const actionText = isOut ? '发药出库（提交后为待确认，确认后才真正扣减）' : '采购入库'
-                this.$confirm(
-                    `确定执行${actionText}操作？药品：${this.form1.goodsname}，数量：${this.form1.count}`,
-                    '库存操作确认',
-                    {
-                        confirmButtonText: '确定',
-                        cancelButtonText: '取消',
-                        type: 'warning'
+                this.$refs.form1.validate((valid) => {
+                    if (!valid) return
+                    if (isOut && !this.form1.userid) {
+                        this.$message.warning('请先选择取药人')
+                        return
                     }
-                ).then(() => {
-                    this.submitting = true
-                    this.submitInGoods()
-                }).catch(() => {})
+                    this.form1.count = Number(this.form1.count)
+                    const actionText = isOut ? '发药出库（提交后为待确认，确认后才真正扣减）' : '采购入库'
+                    this.$confirm(
+                        `确定执行${actionText}操作？药品：${this.form1.goodsname}，数量：${this.form1.count}`,
+                        '库存操作确认',
+                        {
+                            confirmButtonText: '确定',
+                            cancelButtonText: '取消',
+                            type: 'warning'
+                        }
+                    ).then(() => {
+                        this.submitting = true
+                        this.submitInGoods()
+                    }).catch(() => {})
+                })
             },
             submitInGoods(){
                 // 出库走预扣减：立即占库存并生成待确认记录；入库直接生效

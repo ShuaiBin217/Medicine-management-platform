@@ -59,7 +59,7 @@ public class RecordServiceImpl extends ServiceImpl<RecordMapper, Record> impleme
             throw new RuntimeException("药品不存在");
         }
 
-        int n = record.getCount();
+        int n = requirePositiveCount(record);
         // action: "1"=入库(采购), "2"=出库(发药)
         if ("2".equals(record.getAction())) {
             n = -n;
@@ -123,7 +123,7 @@ public class RecordServiceImpl extends ServiceImpl<RecordMapper, Record> impleme
             throw new RuntimeException("药品不存在");
         }
 
-        int n = record.getCount();
+        int n = requirePositiveCount(record);
         if ("2".equals(record.getAction())) {
             n = -n;
             record.setCount(n);
@@ -192,5 +192,19 @@ public class RecordServiceImpl extends ServiceImpl<RecordMapper, Record> impleme
 
         // 删除预扣减记录
         return recordMapper.deleteById(recordId) > 0;
+    }
+
+    /**
+     * 校验流转数量：必须是 1-9999 的整数，避免空值或非法数量落到数据库层
+     */
+    private int requirePositiveCount(Record record) {
+        Integer count = record.getCount();
+        if (count == null || count <= 0) {
+            throw new RuntimeException("数量必须是大于 0 的整数");
+        }
+        if (count > 9999) {
+            throw new RuntimeException("单次数量不能超过 9999");
+        }
+        return count;
     }
 }
