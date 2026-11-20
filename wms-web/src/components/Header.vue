@@ -265,6 +265,13 @@
     .user-info:hover {
         background: var(--raised);
     }
+    .user-info:focus {
+        outline: none;
+    }
+    .user-info:focus-visible {
+        outline: none;
+        background: var(--accent-soft);
+    }
     .user-avatar {
         width: 28px;
         height: 28px;
