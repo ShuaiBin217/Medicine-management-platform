@@ -96,7 +96,11 @@
             <p class="login-copy">DrugWMS · 药房内部使用</p>
         </main>
 
-        <div class="title-spotlight"
+        <div class="title-spotlight title-spotlight--invert"
+             :class="{ 'is-active': spotlight.visible }"
+             :style="{ left: spotlight.x + 'px', top: spotlight.y + 'px' }"
+             aria-hidden="true"></div>
+        <div class="title-spotlight title-spotlight--green"
              :class="{ 'is-active': spotlight.visible }"
              :style="{ left: spotlight.x + 'px', top: spotlight.y + 'px' }"
              aria-hidden="true"></div>
@@ -234,7 +238,7 @@
         bottom: 0;
         width: 320px;
         height: 320px;
-        color: rgba(29, 107, 79, 0.17);
+        color: var(--accent);
         pointer-events: none;
         z-index: 0;
     }
@@ -253,7 +257,7 @@
         animation: login-draw 1.5s var(--login-ease) 0.2s forwards;
     }
     .brand-visual circle {
-        fill: rgba(29, 107, 79, 0.34);
+        fill: var(--accent);
         opacity: 0;
         animation: login-fade 0.5s var(--login-ease) 1.05s forwards;
     }
@@ -262,7 +266,7 @@
         align-items: center;
         gap: 12px;
         position: relative;
-        top: 40px;
+        top: 64px;
         align-self: center;
         z-index: 1;
         animation: login-rise 0.55s var(--login-ease) both;
@@ -379,14 +383,21 @@
         width: 64px;
         height: 64px;
         border-radius: 50%;
-        background: #FFFFFF;
-        mix-blend-mode: difference;
         pointer-events: none;
-        z-index: 60;
         opacity: 0;
         transform: translate(-50%, -50%) scale(0.72);
         transition: opacity 0.16s ease, transform 0.16s var(--login-ease);
         will-change: left, top, opacity, transform;
+    }
+    .title-spotlight--invert {
+        background: #FFFFFF;
+        mix-blend-mode: difference;
+        z-index: 59;
+    }
+    .title-spotlight--green {
+        background: var(--accent);
+        mix-blend-mode: lighten;
+        z-index: 60;
     }
     .title-spotlight.is-active {
         opacity: 1;
