@@ -107,6 +107,7 @@
 
 <script>
     import * as echarts from 'echarts';
+    import { markRaw } from 'vue';
 
     export default {
         name: "Home",
@@ -192,9 +193,11 @@
                 }).then(res => res.data).then(res => {
                     if (res.code == 200) {
                         this.goodsData = res.data;
-                        this.$nextTick(() => {
-                            this.renderTypeChart();
-                        });
+                        if (this.goodstypeData.length) {
+                            this.$nextTick(() => {
+                                this.renderTypeChart();
+                            });
+                        }
                     }
                 });
             },
@@ -202,7 +205,6 @@
                 this.$axios.get(this.$httpUrl + '/storage/list').then(res => res.data).then(res => {
                     if (res.code == 200) {
                         this.storageData = res.data;
-                        if (this.goodsData.length) this.$nextTick(() => this.renderTypeChart());
                     }
                 });
             },
@@ -215,13 +217,9 @@
                 });
             },
             renderTypeChart() {
-                if (this.typeChart) {
-                    this.typeChart.dispose();
-                }
-                if (!this.$refs.typeChart) return
-                this.typeChart = echarts.init(this.$refs.typeChart);
+                if (!this.$refs.typeChart || !this.typeChartData.length) return
                 let data = [...this.typeChartData].sort((a, b) => a.value - b.value);
-                this.typeChart.setOption({
+                const option = {
                     tooltip: {
                         trigger: 'axis',
                         axisPointer: { type: 'shadow' },
@@ -271,7 +269,9 @@
                             fontFamily: 'ui-monospace, Consolas, monospace'
                         }
                     }]
-                });
+                };
+                if (!this.typeChart) this.typeChart = markRaw(echarts.init(this.$refs.typeChart));
+                this.typeChart.setOption(option, true);
             },
             handleResize() {
                 if (this.typeChart) this.typeChart.resize();
