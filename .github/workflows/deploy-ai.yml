@@ -59,7 +59,8 @@ jobs:
         run: |
           ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} 'bash -s' <<'REMOTE'
           set -e
-          IMAGE="ghcr.1ms.run/${{ github.repository }}/wms-ai:latest"
+          REPO=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          IMAGE="ghcr.1ms.run/$REPO/wms-ai:latest"
 
           echo "==> pulling $IMAGE"
           docker pull "$IMAGE"
