@@ -4,7 +4,6 @@
             <div class="ambient-wash wash-a"></div>
             <div class="ambient-wash wash-b"></div>
             <div class="ambient-sheen"></div>
-            <span v-for="n in 12" :key="n" class="dust-mote"></span>
         </div>
 
         <section class="login-brand">
@@ -267,138 +266,17 @@
     }
     .ambient-sheen {
         position: absolute;
-        top: -40%;
-        left: -85%;
-        width: 72%;
-        height: 180%;
-        background: linear-gradient(90deg, rgba(255, 251, 240, 0) 0%, rgba(255, 251, 240, 0.80) 45%, rgba(255, 251, 240, 0.34) 62%, rgba(255, 251, 240, 0) 100%);
-        mix-blend-mode: soft-light;
+        top: -35%;
+        left: -70%;
+        width: 58%;
+        height: 170%;
+        background: linear-gradient(100deg, rgba(255, 248, 231, 0) 0%, rgba(255, 248, 231, 0.18) 18%, rgba(255, 252, 238, 0.72) 42%, rgba(255, 246, 222, 0.30) 62%, rgba(255, 248, 231, 0) 100%);
+        mix-blend-mode: screen;
         opacity: 0;
-        transform: translate3d(0, 0, 0) rotate(16deg);
+        transform: translate3d(0, 0, 0) rotate(12deg);
         animation: ambient-sheen 8s ease-in-out infinite;
         will-change: transform, opacity;
     }
-    .dust-mote {
-        position: absolute;
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-        background: rgba(166, 128, 81, 0.50);
-        opacity: 0;
-        animation-name: ambient-dust;
-        animation-timing-function: linear;
-        animation-iteration-count: infinite;
-        will-change: transform, opacity;
-    }
-    .dust-mote:nth-of-type(1) {
-        left: 7%;
-        top: 80%;
-        width: 7px;
-        height: 7px;
-        --drift: 32px;
-        animation-duration: 22s;
-        animation-delay: -3s;
-    }
-    .dust-mote:nth-of-type(2) {
-        left: 14%;
-        top: 68%;
-        width: 6px;
-        height: 6px;
-        --drift: -24px;
-        animation-duration: 26s;
-        animation-delay: -9s;
-    }
-    .dust-mote:nth-of-type(3) {
-        left: 24%;
-        top: 86%;
-        width: 8px;
-        height: 8px;
-        --drift: 40px;
-        animation-duration: 20s;
-        animation-delay: -5s;
-    }
-    .dust-mote:nth-of-type(4) {
-        left: 34%;
-        top: 72%;
-        width: 6px;
-        height: 6px;
-        --drift: -30px;
-        animation-duration: 24s;
-        animation-delay: -14s;
-    }
-    .dust-mote:nth-of-type(5) {
-        left: 45%;
-        top: 88%;
-        width: 7px;
-        height: 7px;
-        --drift: 22px;
-        animation-duration: 27s;
-        animation-delay: -2s;
-    }
-    .dust-mote:nth-of-type(6) {
-        left: 56%;
-        top: 76%;
-        width: 6px;
-        height: 6px;
-        --drift: -34px;
-        animation-duration: 22s;
-        animation-delay: -11s;
-    }
-    .dust-mote:nth-of-type(7) {
-        left: 66%;
-        top: 84%;
-        width: 7px;
-        height: 7px;
-        --drift: 30px;
-        animation-duration: 25s;
-        animation-delay: -17s;
-    }
-    .dust-mote:nth-of-type(8) {
-        left: 76%;
-        top: 70%;
-        width: 6px;
-        height: 6px;
-        --drift: -22px;
-        animation-duration: 29s;
-        animation-delay: -7s;
-    }
-    .dust-mote:nth-of-type(9) {
-        left: 85%;
-        top: 88%;
-        width: 8px;
-        height: 8px;
-        --drift: 36px;
-        animation-duration: 21s;
-        animation-delay: -13s;
-    }
-    .dust-mote:nth-of-type(10) {
-        left: 92%;
-        top: 76%;
-        width: 6px;
-        height: 6px;
-        --drift: -28px;
-        animation-duration: 24s;
-        animation-delay: -19s;
-    }
-    .dust-mote:nth-of-type(11) {
-        left: 50%;
-        top: 62%;
-        width: 5px;
-        height: 5px;
-        --drift: 18px;
-        animation-duration: 30s;
-        animation-delay: -23s;
-    }
-    .dust-mote:nth-of-type(12) {
-        left: 30%;
-        top: 58%;
-        width: 5px;
-        height: 5px;
-        --drift: -20px;
-        animation-duration: 28s;
-        animation-delay: -6s;
-    }
-
     .login-brand {
         flex: 0 1 520px;
         width: 520px;
@@ -756,35 +634,19 @@
         }
     }
     @keyframes ambient-sheen {
-        0%, 54% {
-            transform: translate3d(0, 0, 0) rotate(16deg);
+        0%, 44% {
+            transform: translate3d(0, 0, 0) rotate(12deg);
             opacity: 0;
         }
-        62% {
-            opacity: 0.78;
+        52% {
+            opacity: 0.85;
         }
-        82% {
-            opacity: 0.46;
+        72% {
+            opacity: 0.55;
         }
         100% {
-            transform: translate3d(150vw, 0, 0) rotate(16deg);
+            transform: translate3d(190vw, 0, 0) rotate(12deg);
             opacity: 0;
-        }
-    }
-    @keyframes ambient-dust {
-        0% {
-            opacity: 0;
-            transform: translate3d(0, 16px, 0) scale(0.7);
-        }
-        12% {
-            opacity: 0.72;
-        }
-        70% {
-            opacity: 0.38;
-        }
-        100% {
-            opacity: 0;
-            transform: translate3d(var(--drift, 20px), -170px, 0) scale(1.08);
         }
     }
     @keyframes login-shake {
@@ -862,12 +724,10 @@
             transform: none;
         }
         .ambient-wash,
-        .ambient-sheen,
-        .dust-mote {
+        .ambient-sheen {
             animation: none;
         }
-        .ambient-sheen,
-        .dust-mote {
+        .ambient-sheen {
             opacity: 0;
         }
     }
