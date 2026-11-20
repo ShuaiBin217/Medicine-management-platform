@@ -39,39 +39,39 @@
                   stripe
                   @selection-change="handleSelectionChange"
             >
-                <el-table-column type="selection" width="55" v-if="user.roleId!=2">
+                <el-table-column type="selection" width="48" fixed="left" v-if="user.roleId!=2">
                 </el-table-column>
-                <el-table-column prop="id" label="ID" width="60">
+                <el-table-column prop="id" label="ID" width="54" align="center">
                 </el-table-column>
-                <el-table-column prop="goodsname" label="药品名" width="150">
+                <el-table-column prop="goodsname" label="药品名" width="130" show-overflow-tooltip>
                 </el-table-column>
-                <el-table-column prop="storagename" label="药房" width="120">
+                <el-table-column prop="storagename" label="药房" width="90">
                 </el-table-column>
-                <el-table-column prop="goodstypename" label="药品分类" width="120">
+                <el-table-column prop="goodstypename" label="药品分类" width="100">
                 </el-table-column>
-                <el-table-column prop="adminname" label="操作人" width="110">
+                <el-table-column prop="adminname" label="操作人" width="88">
                 </el-table-column>
-                <el-table-column prop="username" label="取药人" width="110">
+                <el-table-column prop="username" label="取药人" width="88">
                 </el-table-column>
-                <el-table-column prop="count" label="数量" width="80">
+                <el-table-column prop="count" label="数量" width="66" align="center">
                     <template #default="scope">
                         <span class="qty mono" :class="{ 'is-out': scope.row.count < 0 }">
                             {{ scope.row.count >= 0 ? '+' : '−' }}{{ Math.abs(scope.row.count) }}
                         </span>
                     </template>
                 </el-table-column>
-                <el-table-column label="状态" width="110">
+                <el-table-column label="状态" width="92" align="center">
                     <template #default="scope">
                         <span class="flow-status" :class="scope.row.status === 0 ? 'is-pending' : 'is-done'">
                             <span class="status-dot" :class="scope.row.status === 0 ? 'is-warn' : 'is-ok'"></span>{{ scope.row.status === 0 ? '待确认' : '已确认' }}
                         </span>
                     </template>
                 </el-table-column>
-                <el-table-column prop="createtime" label="操作时间" width="180">
+                <el-table-column prop="createtime" label="操作时间" width="158">
                 </el-table-column>
-                <el-table-column prop="remark" label="备注" min-width="120">
+                <el-table-column prop="remark" label="备注" min-width="100" show-overflow-tooltip>
                 </el-table-column>
-                <el-table-column label="操作" width="130" v-if="user.roleId!=2">
+                <el-table-column label="操作" width="120" fixed="right" v-if="user.roleId!=2">
                     <template #default="scope">
                         <template v-if="scope.row.status === 0">
                             <el-button size="small" type="primary" :loading="submitting"
