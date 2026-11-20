@@ -115,7 +115,7 @@
                 </el-form-item>
                 <el-form-item label="数量" prop="count">
                     <el-col :span="20">
-                        <el-input v-model="form.count"></el-input>
+                        <el-input v-model="form.count" :disabled="!!form.id"></el-input>
                     </el-col>
                 </el-form-item>
                 <el-form-item label="备注" prop="remark">
@@ -483,7 +483,7 @@
                 const url = this.form1.action === '2' ? '/record/preDeduct' : '/record/save'
                 this.$axios.post(this.$httpUrl+url,this.form1).then(res=>res.data).then(res=>{
                     if(res.code==200){
-                        this.$message.success(this.form1.action === '2' ? '已提交出库申请，请到「记录管理」确认' : '操作成功！')
+                        this.$message.success(this.form1.action === '2' ? '已提交出库申请，请到「药品流转记录」确认' : '操作成功！')
                         this.inDialogVisible = false
                         this.loadPost()
                         this.resetInForm()

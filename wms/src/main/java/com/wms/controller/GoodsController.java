@@ -54,6 +54,15 @@ public class GoodsController {
     @PostMapping("/update")
     @PreAuthorize("hasAnyRole('0','1')")
     public Result update(@RequestBody Goods goods){
+        if (goods.getId() == null) {
+            return Result.fail("参数错误");
+        }
+        Goods existing = goodsService.getById(goods.getId());
+        if (existing == null) {
+            return Result.fail("药品不存在");
+        }
+        // 库存只能通过采购/发药变更，编辑只维护药品档案，防止绕过流水直接改数量
+        goods.setCount(existing.getCount());
         boolean result = goodsService.updateById(goods);
         if (result) {
             clearGoodsCache();
