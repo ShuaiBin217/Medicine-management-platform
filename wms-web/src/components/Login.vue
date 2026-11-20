@@ -253,7 +253,7 @@
         left: -22vw;
         top: -34vw;
         background: radial-gradient(circle at 50% 50%, rgba(229, 196, 147, 0.52) 0%, rgba(229, 196, 147, 0.24) 40%, rgba(229, 196, 147, 0) 72%);
-        animation: ambient-drift-a 26s ease-in-out infinite alternate;
+        animation: ambient-drift-a 15s ease-in-out infinite alternate;
     }
     .wash-b {
         width: 64vw;
@@ -263,7 +263,7 @@
         right: -18vw;
         bottom: -30vw;
         background: radial-gradient(circle at 50% 50%, rgba(187, 202, 178, 0.42) 0%, rgba(187, 202, 178, 0.18) 42%, rgba(187, 202, 178, 0) 74%);
-        animation: ambient-drift-b 32s ease-in-out infinite alternate;
+        animation: ambient-drift-b 18s ease-in-out infinite alternate;
     }
     .ambient-sheen {
         position: absolute;
@@ -275,13 +275,13 @@
         mix-blend-mode: soft-light;
         opacity: 0;
         transform: translate3d(0, 0, 0) rotate(16deg);
-        animation: ambient-sheen 20s ease-in-out infinite;
+        animation: ambient-sheen 13s ease-in-out infinite;
         will-change: transform, opacity;
     }
     .dust-mote {
         position: absolute;
-        width: 3px;
-        height: 3px;
+        width: 4px;
+        height: 4px;
         border-radius: 50%;
         background: rgba(166, 128, 81, 0.50);
         opacity: 0;
@@ -293,8 +293,8 @@
     .dust-mote:nth-of-type(1) {
         left: 7%;
         top: 80%;
-        width: 4px;
-        height: 4px;
+        width: 5px;
+        height: 5px;
         --drift: 32px;
         animation-duration: 22s;
         animation-delay: -3s;
@@ -302,8 +302,8 @@
     .dust-mote:nth-of-type(2) {
         left: 14%;
         top: 68%;
-        width: 3px;
-        height: 3px;
+        width: 4px;
+        height: 4px;
         --drift: -24px;
         animation-duration: 26s;
         animation-delay: -9s;
@@ -311,8 +311,8 @@
     .dust-mote:nth-of-type(3) {
         left: 24%;
         top: 86%;
-        width: 5px;
-        height: 5px;
+        width: 6px;
+        height: 6px;
         --drift: 40px;
         animation-duration: 20s;
         animation-delay: -5s;
@@ -320,8 +320,8 @@
     .dust-mote:nth-of-type(4) {
         left: 34%;
         top: 72%;
-        width: 3px;
-        height: 3px;
+        width: 4px;
+        height: 4px;
         --drift: -30px;
         animation-duration: 24s;
         animation-delay: -14s;
@@ -329,8 +329,8 @@
     .dust-mote:nth-of-type(5) {
         left: 45%;
         top: 88%;
-        width: 4px;
-        height: 4px;
+        width: 5px;
+        height: 5px;
         --drift: 22px;
         animation-duration: 27s;
         animation-delay: -2s;
@@ -338,8 +338,8 @@
     .dust-mote:nth-of-type(6) {
         left: 56%;
         top: 76%;
-        width: 3px;
-        height: 3px;
+        width: 4px;
+        height: 4px;
         --drift: -34px;
         animation-duration: 22s;
         animation-delay: -11s;
@@ -347,8 +347,8 @@
     .dust-mote:nth-of-type(7) {
         left: 66%;
         top: 84%;
-        width: 4px;
-        height: 4px;
+        width: 5px;
+        height: 5px;
         --drift: 30px;
         animation-duration: 25s;
         animation-delay: -17s;
@@ -356,8 +356,8 @@
     .dust-mote:nth-of-type(8) {
         left: 76%;
         top: 70%;
-        width: 3px;
-        height: 3px;
+        width: 4px;
+        height: 4px;
         --drift: -22px;
         animation-duration: 29s;
         animation-delay: -7s;
@@ -365,8 +365,8 @@
     .dust-mote:nth-of-type(9) {
         left: 85%;
         top: 88%;
-        width: 5px;
-        height: 5px;
+        width: 6px;
+        height: 6px;
         --drift: 36px;
         animation-duration: 21s;
         animation-delay: -13s;
@@ -374,8 +374,8 @@
     .dust-mote:nth-of-type(10) {
         left: 92%;
         top: 76%;
-        width: 3px;
-        height: 3px;
+        width: 4px;
+        height: 4px;
         --drift: -28px;
         animation-duration: 24s;
         animation-delay: -19s;
@@ -383,8 +383,8 @@
     .dust-mote:nth-of-type(11) {
         left: 50%;
         top: 62%;
-        width: 2px;
-        height: 2px;
+        width: 3px;
+        height: 3px;
         --drift: 18px;
         animation-duration: 30s;
         animation-delay: -23s;
@@ -392,8 +392,8 @@
     .dust-mote:nth-of-type(12) {
         left: 30%;
         top: 58%;
-        width: 2px;
-        height: 2px;
+        width: 3px;
+        height: 3px;
         --drift: -20px;
         animation-duration: 28s;
         animation-delay: -6s;
@@ -436,7 +436,7 @@
         animation: login-draw 1.5s var(--login-ease) 0.2s forwards;
     }
     .brand-visual circle {
-        fill: #B91C1C;
+        fill: var(--accent);
         opacity: 0;
         animation: login-fade 0.5s var(--login-ease) 1.05s forwards;
     }
