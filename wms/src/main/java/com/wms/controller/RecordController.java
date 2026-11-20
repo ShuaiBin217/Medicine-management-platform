@@ -45,7 +45,8 @@ public class RecordController {
         String name = (String)param.get("name");
         String goodstype = (String)param.get("goodstype");
         String storage = (String)param.get("storage");
-        String status = (String)param.get("status");
+        Object statusParam = param.get("status");
+        String status = statusParam == null ? null : String.valueOf(statusParam);
         String roleId = (String)param.get("roleId");
         String userId = (String)param.get("userId");
 
@@ -69,7 +70,7 @@ public class RecordController {
         if(StringUtils.isNotBlank(storage) && !"null".equals(storage)){
             queryWrapper.eq("c.id",storage);
         }
-        // 状态筛选：0 待确认（预扣减中），1 已确认
+        // 状态筛选：0 待确认（预扣减中），1 已确认，2 已回滚
         if(StringUtils.isNotBlank(status) && !"null".equals(status)){
             queryWrapper.eq("a.status",status);
         }
@@ -145,7 +146,7 @@ public class RecordController {
     }
 
     /**
-     * 确认预扣减（状态改为已确认，库存不再变动）
+     * 确认预扣减（仅待确认记录可确认，库存不再变动）
      */
     @PostMapping("/confirmDeduct")
     @PreAuthorize("hasAnyRole('0','1')")
@@ -154,7 +155,7 @@ public class RecordController {
     }
 
     /**
-     * 回滚预扣减（恢复库存并删除预扣减记录）
+     * 回滚预扣减（恢复库存，记录标记为已回滚并保留）
      */
     @PostMapping("/rollbackDeduct")
     @PreAuthorize("hasAnyRole('0','1')")

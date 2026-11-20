@@ -22,6 +22,7 @@
             <el-select v-model="status" placeholder="状态" clearable style="margin-left: 8px; width: 130px;">
                 <el-option label="待确认" value="0"></el-option>
                 <el-option label="已确认" value="1"></el-option>
+                <el-option label="已回滚" value="2"></el-option>
             </el-select>
 
             <el-button type="primary" style="margin-left: 8px;" @click="loadPost">查询</el-button>
@@ -62,8 +63,8 @@
                 </el-table-column>
                 <el-table-column label="状态" width="92" align="center">
                     <template #default="scope">
-                        <span class="flow-status" :class="scope.row.status === 0 ? 'is-pending' : 'is-done'">
-                            <span class="status-dot" :class="scope.row.status === 0 ? 'is-warn' : 'is-ok'"></span>{{ scope.row.status === 0 ? '待确认' : '已确认' }}
+                        <span class="flow-status" :class="statusClass(scope.row.status)">
+                            <span class="status-dot" :class="statusDotClass(scope.row.status)"></span>{{ statusText(scope.row.status) }}
                         </span>
                     </template>
                 </el-table-column>
@@ -76,7 +77,7 @@
                         <div v-if="scope.row.status === 0" class="row-actions">
                             <el-button size="small" type="primary" :loading="submitting"
                                        @click="confirmDeduct(scope.row)">确认</el-button>
-                            <el-popconfirm title="回滚后库存恢复、该单据删除，确定吗？"
+                            <el-popconfirm title="回滚后库存恢复，单据标记为已回滚并保留，确定吗？"
                                            @confirm="rollbackDeduct(scope.row)">
                                 <template #reference>
                                     <el-button size="small">回滚</el-button>
@@ -188,7 +189,7 @@
                 this.submitting = true
                 this.$axios.post(this.$httpUrl+'/record/rollbackDeduct', null, {params:{id: row.id}}).then(res=>res.data).then(res=>{
                     if(res.code==200){
-                        this.$message.success('已回滚，库存已恢复')
+                        this.$message.success('已回滚，库存已恢复，单据已保留')
                         this.loadPost()
                     }else{
                         this.$message.error(res.msg || '回滚失败')
@@ -196,6 +197,21 @@
                 }).catch(()=>{
                     this.$message.error('网络错误')
                 }).finally(()=>{ this.submitting = false })
+            },
+            statusText(status) {
+                const value = Number(status)
+                if (value === 2) return '已回滚'
+                return value === 0 ? '待确认' : '已确认'
+            },
+            statusClass(status) {
+                const value = Number(status)
+                if (value === 2) return 'is-rolled'
+                return value === 0 ? 'is-pending' : 'is-done'
+            },
+            statusDotClass(status) {
+                const value = Number(status)
+                if (value === 2) return 'is-muted'
+                return value === 0 ? 'is-warn' : 'is-ok'
             },
             formatStorage(row){
                 let temp =  this.storageData.find(item=>{
@@ -330,5 +346,8 @@
     }
     .flow-status.is-pending {
         color: var(--amber);
+    }
+    .flow-status.is-rolled {
+        color: var(--muted);
     }
 </style>

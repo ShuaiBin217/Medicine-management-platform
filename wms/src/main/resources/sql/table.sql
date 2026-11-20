@@ -81,6 +81,6 @@ CREATE TABLE `record` (
   `count` int(11) DEFAULT NULL COMMENT '数量',
   `createtime` datetime DEFAULT NULL COMMENT '操作时间',
   `remark` varchar(1000) DEFAULT NULL COMMENT '备注',
-  `status` int(11) DEFAULT 1 COMMENT '状态：0预扣减，1已确认',
+  `status` int(11) DEFAULT 1 COMMENT '状态：0预扣减，1已确认，2已回滚',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;

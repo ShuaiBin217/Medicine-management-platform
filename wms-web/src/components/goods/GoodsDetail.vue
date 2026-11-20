@@ -91,8 +91,8 @@
                                 <div class="flow-main">
                                     <span class="flow-type">{{ item.count >= 0 ? '入库' : '出库' }}</span>
                                     <span class="flow-qty mono">{{ item.count >= 0 ? '+' : '−' }}{{ Math.abs(item.count || 0) }}</span>
-                                    <span class="flow-status" :class="item.status === 0 ? 'is-pending' : 'is-done'">
-                                        <span class="status-dot" :class="item.status === 0 ? 'is-warn' : 'is-ok'"></span>{{ item.status === 0 ? '待确认' : '已确认' }}
+                                    <span class="flow-status" :class="statusClass(item.status)">
+                                        <span class="status-dot" :class="statusDotClass(item.status)"></span>{{ statusText(item.status) }}
                                     </span>
                                     <span class="flow-id mono">#{{ item.id }}</span>
                                 </div>
@@ -175,6 +175,21 @@
                 if (!value) return ''
                 const text = String(value)
                 return text.length > 11 ? text.slice(11, 16) : ''
+            },
+            statusText(status) {
+                const value = Number(status)
+                if (value === 2) return '已回滚'
+                return value === 0 ? '待确认' : '已确认'
+            },
+            statusClass(status) {
+                const value = Number(status)
+                if (value === 2) return 'is-rolled'
+                return value === 0 ? 'is-pending' : 'is-done'
+            },
+            statusDotClass(status) {
+                const value = Number(status)
+                if (value === 2) return 'is-muted'
+                return value === 0 ? 'is-warn' : 'is-ok'
             },
             percent(row) {
                 if (!this.totalStock) return 0
@@ -526,6 +541,9 @@
     }
     .flow-status.is-pending {
         color: var(--amber);
+    }
+    .flow-status.is-rolled {
+        color: var(--muted);
     }
     .flow-id {
         font-size: 10px;

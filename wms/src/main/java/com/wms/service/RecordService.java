@@ -54,14 +54,14 @@ public interface RecordService extends IService<Record> {
     Integer preDeduct(Record record);
 
     /**
-     * 确认预扣减（将预扣减状态改为已确认）
+     * 确认预扣减（仅允许待确认记录改为已确认）
      * @param recordId 预扣减记录ID
      * @return 操作结果
      */
     boolean confirmDeduct(Integer recordId);
 
     /**
-     * 回滚预扣减（超时未确认时恢复库存）
+     * 回滚预扣减（恢复库存，并把记录标记为已回滚保留）
      * @param recordId 预扣减记录ID
      * @return 操作结果
      */

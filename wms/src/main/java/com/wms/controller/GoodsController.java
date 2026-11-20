@@ -140,6 +140,10 @@ public class GoodsController {
         int totalOut = 0;
         int pending = 0;
         for (RecordRes record : records) {
+            // 已回滚的单据不再计入累计出入库，避免取消掉的出库被统计
+            if (record.getStatus() != null && record.getStatus() == 2) {
+                continue;
+            }
             int count = record.getCount() == null ? 0 : record.getCount();
             if (count >= 0) {
                 totalIn += count;

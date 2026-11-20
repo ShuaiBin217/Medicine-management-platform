@@ -1,6 +1,7 @@
 package com.wms.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wms.entity.Goods;
 import com.wms.entity.Record;
@@ -148,7 +149,7 @@ public class RecordServiceImpl extends ServiceImpl<RecordMapper, Record> impleme
 
     /**
      * 确认预扣减
-     * 将预扣减记录状态改为已确认
+     * 仅允许把 status=0 的待确认记录改为已确认；已确认/已回滚的记录不可重复操作
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -160,13 +161,25 @@ public class RecordServiceImpl extends ServiceImpl<RecordMapper, Record> impleme
         if (record.getStatus() != null && record.getStatus() == 1) {
             throw new RuntimeException("该记录已确认，无需重复操作");
         }
-        record.setStatus(1);
-        return recordMapper.updateById(record) > 0;
+        if (record.getStatus() != null && record.getStatus() == 2) {
+            throw new RuntimeException("该记录已回滚，无法确认");
+        }
+
+        // 条件更新：只有仍处于待确认状态时才允许确认，避免并发重复操作
+        int updated = recordMapper.update(null,
+                new LambdaUpdateWrapper<Record>()
+                        .eq(Record::getId, recordId)
+                        .eq(Record::getStatus, 0)
+                        .set(Record::getStatus, 1));
+        if (updated == 0) {
+            throw new RuntimeException("该记录状态已变化，请刷新后重试");
+        }
+        return true;
     }
 
     /**
      * 回滚预扣减
-     * 超时未确认时，恢复库存并删除预扣减记录
+     * 超时未确认时恢复库存，并把记录标记为已回滚（status=2）保留，供后续追溯
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -177,6 +190,19 @@ public class RecordServiceImpl extends ServiceImpl<RecordMapper, Record> impleme
         }
         if (record.getStatus() != null && record.getStatus() == 1) {
             throw new RuntimeException("该记录已确认，无法回滚");
+        }
+        if (record.getStatus() != null && record.getStatus() == 2) {
+            throw new RuntimeException("该记录已回滚，请勿重复操作");
+        }
+
+        // 先原子地把待确认单改为已回滚，避免并发重复恢复库存
+        int updated = recordMapper.update(null,
+                new LambdaUpdateWrapper<Record>()
+                        .eq(Record::getId, recordId)
+                        .eq(Record::getStatus, 0)
+                        .set(Record::getStatus, 2));
+        if (updated == 0) {
+            throw new RuntimeException("该记录状态已变化，请刷新后重试");
         }
 
         // 恢复库存
@@ -189,9 +215,7 @@ public class RecordServiceImpl extends ServiceImpl<RecordMapper, Record> impleme
                 throw new RuntimeException("回滚库存时并发冲突，请重试");
             }
         }
-
-        // 删除预扣减记录
-        return recordMapper.deleteById(recordId) > 0;
+        return true;
     }
 
     /**

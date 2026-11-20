@@ -448,4 +448,5 @@ html, body {
 }
 .status-dot.is-ok { background: var(--accent); }
 .status-dot.is-warn { background: var(--amber); }
+.status-dot.is-muted { background: var(--muted); }
 .status-dot.is-danger { background: var(--red); }
