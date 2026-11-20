@@ -8,7 +8,7 @@
             <div class="intro-user">
                 <div class="user-line">
                     <span class="user-name">{{ user.name }}</span>
-                    <span class="role-badge">{{ roleText }}</span>
+                    <span class="role-badge" :class="'role-' + user.roleId">{{ roleText }}</span>
                 </div>
                 <div class="user-meta mono">
                     {{ user.no }}<template v-if="user.phone"> · {{ user.phone }}</template>
@@ -35,16 +35,29 @@
             </div>
         </section>
 
-        <section class="chart-card">
-            <div class="card-head">
-                <div>
-                    <h2 class="card-title">分类库存构成</h2>
+        <div class="chart-grid">
+            <section class="chart-card">
+                <div class="card-head">
+                    <div>
+                        <h2 class="card-title">分类库存构成</h2>
+                    </div>
+                    <span class="card-tag mono">QTY / 分类</span>
                 </div>
-                <span class="card-tag mono">QTY / 分类</span>
-            </div>
-            <div v-if="typeChartData.length" ref="typeChart" class="chart-main"></div>
-            <div v-else class="empty-state">暂无库存数据</div>
-        </section>
+                <div v-if="typeChartData.length" ref="typeChart" class="chart-main"></div>
+                <div v-else class="empty-state">暂无库存数据</div>
+            </section>
+
+            <section class="chart-card">
+                <div class="card-head">
+                    <div>
+                        <h2 class="card-title">全部药品库存占比</h2>
+                    </div>
+                    <span class="card-tag mono">QTY / 药品</span>
+                </div>
+                <div v-if="drugChartData.length" ref="drugChart" class="chart-main"></div>
+                <div v-else class="empty-state">暂无库存数据</div>
+            </section>
+        </div>
 
         <div class="lower-grid">
             <section class="card ledger">
@@ -92,7 +105,6 @@
 
         <footer class="page-foot">
             <span class="mono">DRUGWMS</span>
-            <span>数据来自当前库存台账</span>
         </footer>
     </div>
 </template>
@@ -109,7 +121,8 @@
                 goodsData: [],
                 storageData: [],
                 goodstypeData: [],
-                typeChart: null
+                typeChart: null,
+                drugChart: null
             }
         },
         computed: {
@@ -163,6 +176,17 @@
                     }
                 });
                 return Object.values(map).filter(d => d.value > 0);
+            },
+            drugChartData() {
+                const map = new Map();
+                this.goodsData.forEach(g => {
+                    const count = Number(g.count) || 0;
+                    if (count <= 0) return;
+                    const name = (g.name || '未命名').trim() || '未命名';
+                    map.set(name, (map.get(name) || 0) + count);
+                });
+                return Array.from(map, ([name, value]) => ({ name, value }))
+                    .sort((a, b) => b.value - a.value);
             }
         },
         methods: {
@@ -185,11 +209,10 @@
                 }).then(res => res.data).then(res => {
                     if (res.code == 200) {
                         this.goodsData = res.data;
-                        if (this.goodstypeData.length) {
-                            this.$nextTick(() => {
-                                this.renderTypeChart();
-                            });
-                        }
+                        this.$nextTick(() => {
+                            this.renderDrugChart();
+                            if (this.goodstypeData.length) this.renderTypeChart();
+                        });
                     }
                 });
             },
@@ -207,6 +230,58 @@
                         if (this.goodsData.length) this.$nextTick(() => this.renderTypeChart());
                     }
                 });
+            },
+            renderDrugChart() {
+                if (!this.$refs.drugChart || !this.drugChartData.length) return
+                const data = this.drugChartData;
+                const total = data.reduce((sum, item) => sum + item.value, 0);
+                const wide = this.$refs.drugChart.clientWidth >= 700;
+                const option = {
+                    color: ['#1D6B4F', '#7E9B78', '#C4B49B', '#B45309', '#9A6B4F', '#5F7F7C', '#8C8A52', '#A65D52'],
+                    tooltip: {
+                        trigger: 'item',
+                        backgroundColor: '#FDFBF7',
+                        borderColor: 'rgba(31,27,22,0.12)',
+                        textStyle: { color: '#1F1B16', fontSize: 12 },
+                        formatter: (params) => params.name + '<br/>' + params.value + ' 件 · ' + params.percent + '%'
+                    },
+                    legend: {
+                        orient: wide ? 'horizontal' : 'vertical',
+                        left: wide ? 'center' : 'auto',
+                        right: wide ? 'auto' : 0,
+                        top: wide ? 'auto' : 'middle',
+                        bottom: wide ? 0 : 'auto',
+                        itemWidth: 8,
+                        itemHeight: 8,
+                        itemGap: wide ? 8 : 9,
+                        icon: 'circle',
+                        textStyle: { color: '#5E554A', fontSize: wide ? 10 : 11 },
+                        formatter: (name) => {
+                            const item = data.find(d => d.name === name);
+                            return item ? name + '  ' + Math.round(item.value * 100 / total) + '%' : name;
+                        }
+                    },
+                    series: [{
+                        name: '库存数量',
+                        type: 'pie',
+                        radius: '62%',
+                        center: wide ? ['50%', '44%'] : ['29%', '50%'],
+                        minAngle: 3,
+                        itemStyle: {
+                            borderColor: '#FDFBF7',
+                            borderWidth: 2
+                        },
+                        label: { show: false },
+                        labelLine: { show: false },
+                        emphasis: {
+                            scale: true,
+                            scaleSize: 4
+                        },
+                        data: data
+                    }]
+                };
+                if (!this.drugChart) this.drugChart = markRaw(echarts.init(this.$refs.drugChart));
+                this.drugChart.setOption(option, true);
             },
             renderTypeChart() {
                 if (!this.$refs.typeChart || !this.typeChartData.length) return
@@ -267,6 +342,10 @@
             },
             handleResize() {
                 if (this.typeChart) this.typeChart.resize();
+                if (this.drugChart) {
+                    this.drugChart.resize();
+                    this.renderDrugChart();
+                }
             }
         },
         created() {
@@ -283,6 +362,10 @@
             if (this.typeChart) {
                 this.typeChart.dispose();
                 this.typeChart = null;
+            }
+            if (this.drugChart) {
+                this.drugChart.dispose();
+                this.drugChart = null;
             }
         }
     }
@@ -373,6 +456,16 @@
         color: var(--amber);
     }
 
+    .chart-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+        gap: 16px;
+        margin-bottom: 16px;
+    }
+    .chart-grid .chart-card {
+        min-width: 0;
+        margin-bottom: 0;
+    }
     .chart-card,
     .card {
         background: var(--card);
@@ -539,6 +632,11 @@
         font-size: 10px;
         color: var(--muted);
         letter-spacing: 0.04em;
+    }
+    @media (max-width: 1279px) {
+        .chart-grid {
+            grid-template-columns: 1fr;
+        }
     }
     @media (max-width: 1100px) {
         .stat-row {
