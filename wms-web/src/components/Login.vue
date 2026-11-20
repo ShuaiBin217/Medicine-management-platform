@@ -266,7 +266,8 @@
         align-items: center;
         gap: 12px;
         position: relative;
-        top: 64px;
+        top: 94px;
+        left: -40px;
         align-self: center;
         z-index: 1;
         animation: login-rise 0.55s var(--login-ease) both;
