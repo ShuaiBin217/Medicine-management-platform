@@ -18,8 +18,8 @@
 
         <section class="stat-row">
             <div class="stat">
-                <span class="stat-label">药品总数</span>
-                <span class="stat-value mono">{{ totalGoods }}</span>
+                <span class="stat-label">药品品种</span>
+                <span class="stat-value mono">{{ totalVarieties }}</span>
             </div>
             <div class="stat">
                 <span class="stat-label">药房总数</span>
@@ -126,8 +126,13 @@
             }
         },
         computed: {
-            totalGoods() {
-                return this.goodsData.length;
+            totalVarieties() {
+                const names = new Set();
+                this.goodsData.forEach(g => {
+                    const name = (g.name || '未命名').trim() || '未命名';
+                    names.add(name);
+                });
+                return names.size;
             },
             lowStockCount() {
                 return this.goodsData.filter(g => g.count <= 10).length;
