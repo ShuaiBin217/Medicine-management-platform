@@ -4,7 +4,7 @@
             <div class="ambient-wash wash-a"></div>
             <div class="ambient-wash wash-b"></div>
             <div class="ambient-sheen"></div>
-            <span v-for="n in 8" :key="n" class="dust-mote"></span>
+            <span v-for="n in 12" :key="n" class="dust-mote"></span>
         </div>
 
         <section class="login-brand">
@@ -246,36 +246,36 @@
         will-change: transform;
     }
     .wash-a {
-        width: 62vw;
-        height: 62vw;
-        min-width: 720px;
-        min-height: 720px;
-        left: -18vw;
-        top: -30vw;
-        background: radial-gradient(circle at 50% 50%, rgba(229, 196, 147, 0.34) 0%, rgba(229, 196, 147, 0.13) 42%, rgba(229, 196, 147, 0) 70%);
-        animation: ambient-drift-a 30s ease-in-out infinite alternate;
+        width: 72vw;
+        height: 72vw;
+        min-width: 780px;
+        min-height: 780px;
+        left: -22vw;
+        top: -34vw;
+        background: radial-gradient(circle at 50% 50%, rgba(229, 196, 147, 0.52) 0%, rgba(229, 196, 147, 0.24) 40%, rgba(229, 196, 147, 0) 72%);
+        animation: ambient-drift-a 26s ease-in-out infinite alternate;
     }
     .wash-b {
-        width: 56vw;
-        height: 56vw;
-        min-width: 640px;
-        min-height: 640px;
-        right: -16vw;
-        bottom: -26vw;
-        background: radial-gradient(circle at 50% 50%, rgba(187, 202, 178, 0.26) 0%, rgba(187, 202, 178, 0.09) 45%, rgba(187, 202, 178, 0) 72%);
-        animation: ambient-drift-b 38s ease-in-out infinite alternate;
+        width: 64vw;
+        height: 64vw;
+        min-width: 700px;
+        min-height: 700px;
+        right: -18vw;
+        bottom: -30vw;
+        background: radial-gradient(circle at 50% 50%, rgba(187, 202, 178, 0.42) 0%, rgba(187, 202, 178, 0.18) 42%, rgba(187, 202, 178, 0) 74%);
+        animation: ambient-drift-b 32s ease-in-out infinite alternate;
     }
     .ambient-sheen {
         position: absolute;
-        top: -35%;
-        left: -80%;
-        width: 62%;
-        height: 170%;
-        background: linear-gradient(90deg, rgba(255, 251, 240, 0) 0%, rgba(255, 251, 240, 0.62) 45%, rgba(255, 251, 240, 0.24) 62%, rgba(255, 251, 240, 0) 100%);
+        top: -40%;
+        left: -85%;
+        width: 72%;
+        height: 180%;
+        background: linear-gradient(90deg, rgba(255, 251, 240, 0) 0%, rgba(255, 251, 240, 0.80) 45%, rgba(255, 251, 240, 0.34) 62%, rgba(255, 251, 240, 0) 100%);
         mix-blend-mode: soft-light;
         opacity: 0;
         transform: translate3d(0, 0, 0) rotate(16deg);
-        animation: ambient-sheen 24s ease-in-out infinite;
+        animation: ambient-sheen 20s ease-in-out infinite;
         will-change: transform, opacity;
     }
     .dust-mote {
@@ -283,7 +283,7 @@
         width: 3px;
         height: 3px;
         border-radius: 50%;
-        background: rgba(166, 128, 81, 0.38);
+        background: rgba(166, 128, 81, 0.50);
         opacity: 0;
         animation-name: ambient-dust;
         animation-timing-function: linear;
@@ -291,75 +291,111 @@
         will-change: transform, opacity;
     }
     .dust-mote:nth-of-type(1) {
-        left: 9%;
-        top: 78%;
-        width: 3px;
-        height: 3px;
-        --drift: 28px;
-        animation-duration: 26s;
-        animation-delay: -4s;
-    }
-    .dust-mote:nth-of-type(2) {
-        left: 17%;
-        top: 64%;
-        width: 2px;
-        height: 2px;
-        --drift: -20px;
-        animation-duration: 31s;
-        animation-delay: -12s;
-    }
-    .dust-mote:nth-of-type(3) {
-        left: 29%;
-        top: 85%;
+        left: 7%;
+        top: 80%;
         width: 4px;
         height: 4px;
-        --drift: 34px;
-        animation-duration: 24s;
-        animation-delay: -7s;
+        --drift: 32px;
+        animation-duration: 22s;
+        animation-delay: -3s;
     }
-    .dust-mote:nth-of-type(4) {
-        left: 41%;
-        top: 70%;
-        width: 2px;
-        height: 2px;
-        --drift: -26px;
-        animation-duration: 28s;
-        animation-delay: -16s;
-    }
-    .dust-mote:nth-of-type(5) {
-        left: 52%;
-        top: 88%;
+    .dust-mote:nth-of-type(2) {
+        left: 14%;
+        top: 68%;
         width: 3px;
         height: 3px;
-        --drift: 18px;
-        animation-duration: 33s;
+        --drift: -24px;
+        animation-duration: 26s;
+        animation-delay: -9s;
+    }
+    .dust-mote:nth-of-type(3) {
+        left: 24%;
+        top: 86%;
+        width: 5px;
+        height: 5px;
+        --drift: 40px;
+        animation-duration: 20s;
+        animation-delay: -5s;
+    }
+    .dust-mote:nth-of-type(4) {
+        left: 34%;
+        top: 72%;
+        width: 3px;
+        height: 3px;
+        --drift: -30px;
+        animation-duration: 24s;
+        animation-delay: -14s;
+    }
+    .dust-mote:nth-of-type(5) {
+        left: 45%;
+        top: 88%;
+        width: 4px;
+        height: 4px;
+        --drift: 22px;
+        animation-duration: 27s;
         animation-delay: -2s;
     }
     .dust-mote:nth-of-type(6) {
-        left: 66%;
-        top: 74%;
-        width: 2px;
-        height: 2px;
-        --drift: -30px;
-        animation-duration: 22s;
-        animation-delay: -10s;
-    }
-    .dust-mote:nth-of-type(7) {
-        left: 80%;
-        top: 82%;
+        left: 56%;
+        top: 76%;
         width: 3px;
         height: 3px;
-        --drift: 24px;
-        animation-duration: 30s;
-        animation-delay: -20s;
+        --drift: -34px;
+        animation-duration: 22s;
+        animation-delay: -11s;
+    }
+    .dust-mote:nth-of-type(7) {
+        left: 66%;
+        top: 84%;
+        width: 4px;
+        height: 4px;
+        --drift: 30px;
+        animation-duration: 25s;
+        animation-delay: -17s;
     }
     .dust-mote:nth-of-type(8) {
-        left: 93%;
-        top: 68%;
+        left: 76%;
+        top: 70%;
+        width: 3px;
+        height: 3px;
+        --drift: -22px;
+        animation-duration: 29s;
+        animation-delay: -7s;
+    }
+    .dust-mote:nth-of-type(9) {
+        left: 85%;
+        top: 88%;
+        width: 5px;
+        height: 5px;
+        --drift: 36px;
+        animation-duration: 21s;
+        animation-delay: -13s;
+    }
+    .dust-mote:nth-of-type(10) {
+        left: 92%;
+        top: 76%;
+        width: 3px;
+        height: 3px;
+        --drift: -28px;
+        animation-duration: 24s;
+        animation-delay: -19s;
+    }
+    .dust-mote:nth-of-type(11) {
+        left: 50%;
+        top: 62%;
         width: 2px;
         height: 2px;
-        --drift: -18px;
-        animation-duration: 27s;
+        --drift: 18px;
+        animation-duration: 30s;
+        animation-delay: -23s;
+    }
+    .dust-mote:nth-of-type(12) {
+        left: 30%;
+        top: 58%;
+        width: 2px;
+        height: 2px;
+        --drift: -20px;
+        animation-duration: 28s;
         animation-delay: -6s;
     }
 
@@ -400,7 +436,7 @@
         animation: login-draw 1.5s var(--login-ease) 0.2s forwards;
     }
     .brand-visual circle {
-        fill: var(--accent);
+        fill: #B91C1C;
         opacity: 0;
         animation: login-fade 0.5s var(--login-ease) 1.05s forwards;
     }
@@ -708,7 +744,7 @@
             transform: translate3d(0, 0, 0) scale(1);
         }
         100% {
-            transform: translate3d(7vw, 4vh, 0) scale(1.1);
+            transform: translate3d(9vw, 5vh, 0) scale(1.14);
         }
     }
     @keyframes ambient-drift-b {
@@ -716,19 +752,19 @@
             transform: translate3d(0, 0, 0) scale(1.04);
         }
         100% {
-            transform: translate3d(-6vw, -4vh, 0) scale(0.96);
+            transform: translate3d(-8vw, -5vh, 0) scale(0.94);
         }
     }
     @keyframes ambient-sheen {
-        0%, 58% {
+        0%, 54% {
             transform: translate3d(0, 0, 0) rotate(16deg);
             opacity: 0;
         }
-        66% {
-            opacity: 0.55;
+        62% {
+            opacity: 0.78;
         }
-        84% {
-            opacity: 0.35;
+        82% {
+            opacity: 0.46;
         }
         100% {
             transform: translate3d(150vw, 0, 0) rotate(16deg);
@@ -740,15 +776,15 @@
             opacity: 0;
             transform: translate3d(0, 16px, 0) scale(0.7);
         }
-        14% {
-            opacity: 0.55;
+        12% {
+            opacity: 0.72;
         }
-        72% {
-            opacity: 0.28;
+        70% {
+            opacity: 0.38;
         }
         100% {
             opacity: 0;
-            transform: translate3d(var(--drift, 20px), -150px, 0) scale(1.05);
+            transform: translate3d(var(--drift, 20px), -170px, 0) scale(1.08);
         }
     }
     @keyframes login-shake {
