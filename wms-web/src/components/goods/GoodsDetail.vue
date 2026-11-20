@@ -4,7 +4,6 @@
         <div v-if="!goodsId" class="card empty-card">
             <div class="empty-kicker mono">FLOW / LOOKUP</div>
             <h1 class="empty-title">选择要查看的药品</h1>
-            <p class="empty-desc">从「药品管理」点击药品名可直接进入，也可以在下方选择。</p>
             <el-select v-model="pickedId" filterable placeholder="输入药品名搜索" style="width: 360px; max-width: 100%;" @change="goPicked">
                 <el-option
                         v-for="item in goodsOptions"
@@ -51,22 +50,18 @@
                 <div class="stat">
                     <span class="stat-label">同名药品总库存</span>
                     <span class="stat-value mono">{{ totalStock }}</span>
-                    <span class="stat-note">覆盖 {{ sameName.length }} 个药房</span>
                 </div>
                 <div class="stat">
                     <span class="stat-label">累计入库</span>
                     <span class="stat-value mono">{{ totalIn }}</span>
-                    <span class="stat-note">按流水汇总</span>
                 </div>
                 <div class="stat">
                     <span class="stat-label">累计出库</span>
                     <span class="stat-value mono">{{ totalOut }}</span>
-                    <span class="stat-note">按流水汇总</span>
                 </div>
                 <div class="stat">
                     <span class="stat-label">待确认</span>
                     <span class="stat-value mono" :class="{ 'is-warn': pending > 0 }">{{ pending }}</span>
-                    <span class="stat-note">{{ pending > 0 ? '出库申请待处理' : '没有待处理单据' }}</span>
                 </div>
             </section>
 
@@ -75,7 +70,6 @@
                     <div class="card-head">
                         <div>
                             <h2 class="card-title">出入库流水</h2>
-                            <p class="card-desc">按时间倒序，逐笔记录库存变化</p>
                         </div>
                         <div class="head-right">
                             <span class="count mono">{{ records.length }} 条</span>
@@ -117,7 +111,6 @@
                     <div class="card-head">
                         <div>
                             <h2 class="card-title">同名药品分布</h2>
-                            <p class="card-desc">同一种药在不同药房的库存</p>
                         </div>
                     </div>
 
@@ -292,11 +285,6 @@
         color: var(--ink);
         margin: 0;
     }
-    .empty-desc {
-        font-size: 12px;
-        color: var(--muted);
-        margin: 0 0 10px;
-    }
 
     .detail-head {
         margin-bottom: 18px;
@@ -415,10 +403,6 @@
     .stat-value.is-warn {
         color: var(--amber);
     }
-    .stat-note {
-        font-size: 10px;
-        color: var(--muted);
-    }
 
     .split {
         display: grid;
@@ -442,11 +426,6 @@
         font-weight: 500;
         color: var(--ink);
         margin: 0 0 4px;
-    }
-    .card-desc {
-        font-size: 11px;
-        color: var(--muted);
-        margin: 0;
     }
     .head-right {
         display: flex;

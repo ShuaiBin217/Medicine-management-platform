@@ -4,7 +4,6 @@
             <div class="intro-main">
                 <div class="eyebrow mono">DASHBOARD</div>
                 <h1 class="intro-title">库存仪表盘</h1>
-                <p class="intro-desc">共 {{ storageData.length }} 个药房 · {{ goodstypeData.length }} 个分类 · {{ totalGoods }} 条药品库存</p>
             </div>
             <div class="intro-user">
                 <div class="user-line">
@@ -21,22 +20,18 @@
             <div class="stat">
                 <span class="stat-label">药品总数</span>
                 <span class="stat-value mono">{{ totalGoods }}</span>
-                <span class="stat-note">在库药品条目</span>
             </div>
             <div class="stat">
                 <span class="stat-label">药房总数</span>
                 <span class="stat-value mono">{{ storageData.length }}</span>
-                <span class="stat-note">独立库存台账</span>
             </div>
             <div class="stat">
                 <span class="stat-label">分类总数</span>
                 <span class="stat-value mono">{{ goodstypeData.length }}</span>
-                <span class="stat-note">药品分类维度</span>
             </div>
             <div class="stat">
-                <span class="stat-label">库存预警</span>
+                <span class="stat-label">库存预警 ≤10</span>
                 <span class="stat-value mono" :class="{ 'is-warn': lowStockCount > 0 }">{{ lowStockCount }}</span>
-                <span class="stat-note">数量 ≤ 10 的条目</span>
             </div>
         </section>
 
@@ -44,7 +39,6 @@
             <div class="card-head">
                 <div>
                     <h2 class="card-title">分类库存构成</h2>
-                    <p class="card-desc">按药品分类汇总当前在库数量</p>
                 </div>
                 <span class="card-tag mono">QTY / 分类</span>
             </div>
@@ -57,7 +51,6 @@
                 <div class="card-head">
                     <div>
                         <h2 class="card-title">药房库存</h2>
-                        <p class="card-desc">各药房当前在库合计</p>
                     </div>
                 </div>
                 <div class="ledger-list" v-if="storageRows.length">
@@ -79,7 +72,6 @@
                 <div class="card-head">
                     <div>
                         <h2 class="card-title">库存预警</h2>
-                        <p class="card-desc">数量 ≤ 10 的药品，优先补货</p>
                     </div>
                     <span v-if="lowStockCount" class="warn-count mono">{{ lowStockCount }}</span>
                 </div>
@@ -320,11 +312,6 @@
         margin: 0 0 6px;
         letter-spacing: 0.01em;
     }
-    .intro-desc {
-        font-size: 12px;
-        color: var(--muted);
-        margin: 0;
-    }
     .intro-user {
         text-align: right;
         flex-shrink: 0;
@@ -385,10 +372,6 @@
     .stat-value.is-warn {
         color: var(--amber);
     }
-    .stat-note {
-        font-size: 11px;
-        color: var(--muted);
-    }
 
     .chart-card,
     .card {
@@ -411,11 +394,6 @@
         font-weight: 500;
         color: var(--ink);
         margin: 0 0 4px;
-    }
-    .card-desc {
-        font-size: 11px;
-        color: var(--muted);
-        margin: 0;
     }
     .card-tag {
         font-size: 10px;

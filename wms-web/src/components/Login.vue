@@ -52,7 +52,6 @@
                 <div class="card-head">
                     <span class="card-kicker mono">SIGN IN</span>
                     <h2 class="card-title">登录</h2>
-                    <p class="card-desc">使用药房分配的账号进入系统</p>
                 </div>
 
                 <el-form :model="loginForm" :rules="rules" ref="loginForm"
@@ -300,11 +299,6 @@
         font-weight: 500;
         color: var(--ink);
         margin: 8px 0 6px;
-    }
-    .card-desc {
-        font-size: 13px;
-        color: var(--muted);
-        margin: 0;
     }
     .login-form :deep(.el-form-item__label) {
         padding-bottom: 6px;
