@@ -1,5 +1,12 @@
 <template>
     <div class="login-page">
+        <div class="ambient-layer" aria-hidden="true">
+            <div class="ambient-wash wash-a"></div>
+            <div class="ambient-wash wash-b"></div>
+            <div class="ambient-sheen"></div>
+            <span v-for="n in 8" :key="n" class="dust-mote"></span>
+        </div>
+
         <section class="login-brand">
             <div class="brand-visual" aria-hidden="true">
                 <svg viewBox="0 0 240 240" focusable="false">
@@ -212,6 +219,9 @@
 <style scoped>
     .login-page {
         --login-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+        position: relative;
+        overflow: hidden;
+        isolation: isolate;
         min-height: 100vh;
         display: flex;
         align-items: stretch;
@@ -221,6 +231,138 @@
         background: var(--paper);
         color: var(--ink);
     }
+
+    .ambient-layer {
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        overflow: hidden;
+        pointer-events: none;
+    }
+    .ambient-wash {
+        position: absolute;
+        border-radius: 50%;
+        mix-blend-mode: multiply;
+        will-change: transform;
+    }
+    .wash-a {
+        width: 62vw;
+        height: 62vw;
+        min-width: 720px;
+        min-height: 720px;
+        left: -18vw;
+        top: -30vw;
+        background: radial-gradient(circle at 50% 50%, rgba(229, 196, 147, 0.34) 0%, rgba(229, 196, 147, 0.13) 42%, rgba(229, 196, 147, 0) 70%);
+        animation: ambient-drift-a 30s ease-in-out infinite alternate;
+    }
+    .wash-b {
+        width: 56vw;
+        height: 56vw;
+        min-width: 640px;
+        min-height: 640px;
+        right: -16vw;
+        bottom: -26vw;
+        background: radial-gradient(circle at 50% 50%, rgba(187, 202, 178, 0.26) 0%, rgba(187, 202, 178, 0.09) 45%, rgba(187, 202, 178, 0) 72%);
+        animation: ambient-drift-b 38s ease-in-out infinite alternate;
+    }
+    .ambient-sheen {
+        position: absolute;
+        top: -35%;
+        left: -80%;
+        width: 62%;
+        height: 170%;
+        background: linear-gradient(90deg, rgba(255, 251, 240, 0) 0%, rgba(255, 251, 240, 0.62) 45%, rgba(255, 251, 240, 0.24) 62%, rgba(255, 251, 240, 0) 100%);
+        mix-blend-mode: soft-light;
+        opacity: 0;
+        transform: translate3d(0, 0, 0) rotate(16deg);
+        animation: ambient-sheen 24s ease-in-out infinite;
+        will-change: transform, opacity;
+    }
+    .dust-mote {
+        position: absolute;
+        width: 3px;
+        height: 3px;
+        border-radius: 50%;
+        background: rgba(166, 128, 81, 0.38);
+        opacity: 0;
+        animation-name: ambient-dust;
+        animation-timing-function: linear;
+        animation-iteration-count: infinite;
+        will-change: transform, opacity;
+    }
+    .dust-mote:nth-of-type(1) {
+        left: 9%;
+        top: 78%;
+        width: 3px;
+        height: 3px;
+        --drift: 28px;
+        animation-duration: 26s;
+        animation-delay: -4s;
+    }
+    .dust-mote:nth-of-type(2) {
+        left: 17%;
+        top: 64%;
+        width: 2px;
+        height: 2px;
+        --drift: -20px;
+        animation-duration: 31s;
+        animation-delay: -12s;
+    }
+    .dust-mote:nth-of-type(3) {
+        left: 29%;
+        top: 85%;
+        width: 4px;
+        height: 4px;
+        --drift: 34px;
+        animation-duration: 24s;
+        animation-delay: -7s;
+    }
+    .dust-mote:nth-of-type(4) {
+        left: 41%;
+        top: 70%;
+        width: 2px;
+        height: 2px;
+        --drift: -26px;
+        animation-duration: 28s;
+        animation-delay: -16s;
+    }
+    .dust-mote:nth-of-type(5) {
+        left: 52%;
+        top: 88%;
+        width: 3px;
+        height: 3px;
+        --drift: 18px;
+        animation-duration: 33s;
+        animation-delay: -2s;
+    }
+    .dust-mote:nth-of-type(6) {
+        left: 66%;
+        top: 74%;
+        width: 2px;
+        height: 2px;
+        --drift: -30px;
+        animation-duration: 22s;
+        animation-delay: -10s;
+    }
+    .dust-mote:nth-of-type(7) {
+        left: 80%;
+        top: 82%;
+        width: 3px;
+        height: 3px;
+        --drift: 24px;
+        animation-duration: 30s;
+        animation-delay: -20s;
+    }
+    .dust-mote:nth-of-type(8) {
+        left: 93%;
+        top: 68%;
+        width: 2px;
+        height: 2px;
+        --drift: -18px;
+        animation-duration: 27s;
+        animation-delay: -6s;
+    }
+
     .login-brand {
         flex: 0 1 520px;
         width: 520px;
@@ -231,6 +373,7 @@
         flex-direction: column;
         justify-content: space-between;
         position: relative;
+        z-index: 1;
     }
     .brand-visual {
         position: absolute;
@@ -419,6 +562,7 @@
         justify-content: center;
         padding: 40px 0;
         position: relative;
+        z-index: 1;
         animation: login-card-in 0.6s var(--login-ease) 0.12s both;
         min-width: 0;
     }
@@ -559,6 +703,54 @@
             stroke-dashoffset: 0;
         }
     }
+    @keyframes ambient-drift-a {
+        0% {
+            transform: translate3d(0, 0, 0) scale(1);
+        }
+        100% {
+            transform: translate3d(7vw, 4vh, 0) scale(1.1);
+        }
+    }
+    @keyframes ambient-drift-b {
+        0% {
+            transform: translate3d(0, 0, 0) scale(1.04);
+        }
+        100% {
+            transform: translate3d(-6vw, -4vh, 0) scale(0.96);
+        }
+    }
+    @keyframes ambient-sheen {
+        0%, 58% {
+            transform: translate3d(0, 0, 0) rotate(16deg);
+            opacity: 0;
+        }
+        66% {
+            opacity: 0.55;
+        }
+        84% {
+            opacity: 0.35;
+        }
+        100% {
+            transform: translate3d(150vw, 0, 0) rotate(16deg);
+            opacity: 0;
+        }
+    }
+    @keyframes ambient-dust {
+        0% {
+            opacity: 0;
+            transform: translate3d(0, 16px, 0) scale(0.7);
+        }
+        14% {
+            opacity: 0.55;
+        }
+        72% {
+            opacity: 0.28;
+        }
+        100% {
+            opacity: 0;
+            transform: translate3d(var(--drift, 20px), -150px, 0) scale(1.05);
+        }
+    }
     @keyframes login-shake {
         0%, 100% {
             transform: translateX(0);
@@ -632,6 +824,15 @@
         .login-btn:hover:not(:disabled),
         .login-btn:hover:not(:disabled) .login-btn-arrow {
             transform: none;
+        }
+        .ambient-wash,
+        .ambient-sheen,
+        .dust-mote {
+            animation: none;
+        }
+        .ambient-sheen,
+        .dust-mote {
+            opacity: 0;
         }
     }
 </style>
