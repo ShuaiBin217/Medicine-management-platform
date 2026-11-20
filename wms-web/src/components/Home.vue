@@ -5,15 +5,6 @@
                 <div class="eyebrow mono">DASHBOARD</div>
                 <h1 class="intro-title">库存仪表盘</h1>
             </div>
-            <div class="intro-user">
-                <div class="user-line">
-                    <span class="user-name">{{ user.name }}</span>
-                    <span class="role-badge" :class="'role-' + user.roleId">{{ roleText }}</span>
-                </div>
-                <div class="user-meta mono">
-                    {{ user.no }}<template v-if="user.phone"> · {{ user.phone }}</template>
-                </div>
-            </div>
         </header>
 
         <section class="stat-row">
@@ -117,7 +108,6 @@
         name: "Home",
         data() {
             return {
-                user: {},
                 goodsData: [],
                 storageData: [],
                 goodstypeData: [],
@@ -141,12 +131,6 @@
                 return this.goodsData
                     .filter(g => g.count <= 10)
                     .sort((a, b) => a.count - b.count);
-            },
-            roleText() {
-                const role = String(this.user.roleId)
-                if (role === '0') return '超级管理员'
-                if (role === '1') return '管理员'
-                return '普通用户'
             },
             storageChartData() {
                 let map = {};
@@ -195,9 +179,6 @@
             }
         },
         methods: {
-            init() {
-                this.user = JSON.parse(sessionStorage.getItem('CurUser')) || {}
-            },
             getStorageName(id) {
                 let item = this.storageData.find(s => s.id == id);
                 return item ? item.name : '';
@@ -353,9 +334,6 @@
                 }
             }
         },
-        created() {
-            this.init();
-        },
         mounted() {
             this.loadStorage();
             this.loadGoodstype();
@@ -381,10 +359,6 @@
         padding-bottom: 8px;
     }
     .page-intro {
-        display: flex;
-        align-items: flex-end;
-        justify-content: space-between;
-        gap: 24px;
         margin-bottom: 24px;
     }
     .eyebrow {
@@ -400,35 +374,6 @@
         margin: 0 0 6px;
         letter-spacing: 0.01em;
     }
-    .intro-user {
-        text-align: right;
-        flex-shrink: 0;
-    }
-    .user-line {
-        display: flex;
-        align-items: center;
-        justify-content: flex-end;
-        gap: 8px;
-    }
-    .user-name {
-        font-size: 14px;
-        font-weight: 500;
-        color: var(--ink);
-    }
-    .role-badge {
-        font-size: 11px;
-        color: var(--ink-2);
-        background: var(--raised);
-        border: 1px solid var(--line);
-        border-radius: 999px;
-        padding: 1px 8px;
-    }
-    .user-meta {
-        font-size: 11px;
-        color: var(--muted);
-        margin-top: 5px;
-    }
-
     .stat-row {
         display: grid;
         grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -658,16 +603,6 @@
         }
     }
     @media (max-width: 720px) {
-        .page-intro {
-            flex-direction: column;
-            align-items: flex-start;
-        }
-        .intro-user {
-            text-align: left;
-        }
-        .user-line {
-            justify-content: flex-start;
-        }
         .stat-row {
             grid-template-columns: 1fr;
         }

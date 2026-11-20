@@ -106,6 +106,7 @@
             pageTitle() {
                 const path = this.$route.path
                 if (path === '/Home') return '库存仪表盘'
+                if (path === '/Profile') return '个人中心'
                 if (path === '/GoodsDetail') return '药品流转详细'
                 const hit = this.menu.find(item => '/' + item.menuclick === path)
                 return hit ? hit.menuname : '药房工作台'
@@ -113,6 +114,7 @@
             pageSection() {
                 const path = this.$route.path
                 if (path === '/Home') return '工作台'
+                if (path === '/Profile') return '账号与权限'
                 if (path === '/GoodsDetail' || path.indexOf('/Goods') === 0) return '药品管理'
                 if (path.indexOf('/Record') === 0) return '流转记录'
                 if (path.indexOf('/Storage') === 0 || path.indexOf('/Goodstype') === 0) return '基础资料'
@@ -170,7 +172,7 @@
                 })
             },
             toUser(){
-                this.$router.push("/Home")
+                this.$router.push("/Profile")
             },
             logout(){
                 this.$confirm('确定要退出登录吗？', '提示', {

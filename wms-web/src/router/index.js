@@ -30,6 +30,14 @@ const routes = [
                 },
                 component:()=>import('../components/Home')
             },
+            {
+                path:'/Profile',
+                name:'profile',
+                meta:{
+                    title:'个人中心'
+                },
+                component:()=>import('../components/Profile')
+            },
         ]
     }
 ]
