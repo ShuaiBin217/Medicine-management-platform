@@ -163,8 +163,8 @@
             roleScope() {
                 const role = String(this.user.roleId)
                 if (role === '0') return '全部功能：管理员、用户、药房、分类、药品与流转记录管理。'
-                if (role === '1') return '业务维护：用户、药房、分类、药品与流转记录；不含管理员管理。'
-                return '只读查询：药品、库存与流转记录；出库时作为取药人被选择。'
+                if (role === '1') return '业务维护：用户、药房、分类、药品与流转记录。'
+                return '只读查询：药品、库存与流转记录。'
             },
             isValid() {
                 return this.user.isvalid !== 'N'
