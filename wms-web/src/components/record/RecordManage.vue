@@ -69,11 +69,11 @@
                 </el-table-column>
                 <el-table-column prop="createtime" label="操作时间" width="158">
                 </el-table-column>
-                <el-table-column prop="remark" label="备注" min-width="100" show-overflow-tooltip>
+                <el-table-column prop="remark" label="备注" min-width="80" show-overflow-tooltip>
                 </el-table-column>
-                <el-table-column label="操作" width="120" fixed="right" v-if="user.roleId!=2">
+                <el-table-column label="操作" width="150" fixed="right" align="center" v-if="user.roleId!=2">
                     <template #default="scope">
-                        <template v-if="scope.row.status === 0">
+                        <div v-if="scope.row.status === 0" class="row-actions">
                             <el-button size="small" type="primary" :loading="submitting"
                                        @click="confirmDeduct(scope.row)">确认</el-button>
                             <el-popconfirm title="回滚后库存恢复、该单据删除，确定吗？"
@@ -82,7 +82,7 @@
                                     <el-button size="small">回滚</el-button>
                                 </template>
                             </el-popconfirm>
-                        </template>
+                        </div>
                         <span v-else class="muted">—</span>
                     </template>
                 </el-table-column>
@@ -305,6 +305,15 @@
     }
     .muted {
         color: var(--muted);
+    }
+    .row-actions {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+    .row-actions :deep(.el-button + .el-button) {
+        margin-left: 0;
     }
     .qty {
         font-weight: 500;
