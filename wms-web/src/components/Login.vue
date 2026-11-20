@@ -20,7 +20,10 @@
 
             <div class="brand-main">
                 <div class="brand-kicker mono">PHARMACY / INVENTORY</div>
-                <h1 class="brand-title">药房库存与<br/>药品流转管理</h1>
+                <h1 class="brand-title"
+                    @mouseenter="handleSpotlightEnter"
+                    @mousemove="handleSpotlightMove"
+                    @mouseleave="handleSpotlightLeave">药房库存与<br/>药品流转管理</h1>
                 <p class="brand-desc">面向药房内部的库存、出入库与流转记录系统。数据仅对授权人员开放。</p>
 
                 <ul class="brand-points">
@@ -92,6 +95,11 @@
             </div>
             <p class="login-copy">DrugWMS · 药房内部使用</p>
         </main>
+
+        <div class="title-spotlight"
+             :class="{ 'is-active': spotlight.visible }"
+             :style="{ left: spotlight.x + 'px', top: spotlight.y + 'px' }"
+             aria-hidden="true"></div>
     </div>
 </template>
 
@@ -103,6 +111,11 @@
         data() {
             return {
                 confirm_disabled: false,
+                spotlight: {
+                    visible: false,
+                    x: 0,
+                    y: 0
+                },
                 errorShake: false,
                 errorTimer: null,
                 errorFrame: null,
@@ -124,6 +137,18 @@
             this.resetError();
         },
         methods: {
+            handleSpotlightEnter(event) {
+                this.spotlight.x = event.clientX;
+                this.spotlight.y = event.clientY;
+                this.spotlight.visible = true;
+            },
+            handleSpotlightMove(event) {
+                this.spotlight.x = event.clientX;
+                this.spotlight.y = event.clientY;
+            },
+            handleSpotlightLeave() {
+                this.spotlight.visible = false;
+            },
             resetError() {
                 if (this.errorTimer) {
                     window.clearTimeout(this.errorTimer);
@@ -209,7 +234,7 @@
         bottom: 0;
         width: 320px;
         height: 320px;
-        color: rgba(29, 107, 79, 0.09);
+        color: rgba(29, 107, 79, 0.17);
         pointer-events: none;
         z-index: 0;
     }
@@ -228,7 +253,7 @@
         animation: login-draw 1.5s var(--login-ease) 0.2s forwards;
     }
     .brand-visual circle {
-        fill: rgba(29, 107, 79, 0.22);
+        fill: rgba(29, 107, 79, 0.34);
         opacity: 0;
         animation: login-fade 0.5s var(--login-ease) 1.05s forwards;
     }
@@ -237,6 +262,8 @@
         align-items: center;
         gap: 12px;
         position: relative;
+        top: 40px;
+        align-self: center;
         z-index: 1;
         animation: login-rise 0.55s var(--login-ease) both;
     }
@@ -286,6 +313,7 @@
         font-weight: 500;
         letter-spacing: 0.01em;
         color: var(--ink);
+        width: fit-content;
         margin: 0 0 18px;
     }
     .brand-desc {
@@ -344,6 +372,30 @@
     .brand-foot .status-dot {
         background: var(--accent);
         margin-right: 8px;
+    }
+
+    .title-spotlight {
+        position: fixed;
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        background: #FFFFFF;
+        mix-blend-mode: difference;
+        pointer-events: none;
+        z-index: 60;
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.72);
+        transition: opacity 0.16s ease, transform 0.16s var(--login-ease);
+        will-change: left, top, opacity, transform;
+    }
+    .title-spotlight.is-active {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+    @media (hover: none), (pointer: coarse) {
+        .title-spotlight {
+            display: none;
+        }
     }
 
     .login-main {
