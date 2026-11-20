@@ -32,3 +32,4 @@ yarn-error.log*
 .trae/
 .agents/
 .workbuddy/
+.tmp/
