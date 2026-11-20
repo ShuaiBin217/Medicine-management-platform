@@ -185,29 +185,31 @@
         --login-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
         min-height: 100vh;
         display: flex;
+        align-items: stretch;
+        justify-content: center;
+        gap: clamp(40px, 7vw, 112px);
+        padding: 0 clamp(24px, 6vw, 96px);
         background: var(--paper);
         color: var(--ink);
     }
     .login-brand {
-        width: 44%;
+        flex: 0 1 520px;
+        width: 520px;
+        max-width: 520px;
         min-width: 380px;
-        max-width: 620px;
-        background: #1B3B2F;
-        color: #FDFBF7;
-        padding: 36px 48px 32px;
+        padding: 40px 0 32px;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
         position: relative;
-        overflow: hidden;
     }
     .brand-visual {
         position: absolute;
-        right: -54px;
-        bottom: -58px;
-        width: 360px;
-        height: 360px;
-        color: rgba(253, 251, 247, 0.12);
+        right: 0;
+        bottom: 0;
+        width: 320px;
+        height: 320px;
+        color: rgba(29, 107, 79, 0.09);
         pointer-events: none;
         z-index: 0;
     }
@@ -226,7 +228,7 @@
         animation: login-draw 1.5s var(--login-ease) 0.2s forwards;
     }
     .brand-visual circle {
-        fill: rgba(143, 191, 168, 0.55);
+        fill: rgba(29, 107, 79, 0.22);
         opacity: 0;
         animation: login-fade 0.5s var(--login-ease) 1.05s forwards;
     }
@@ -242,8 +244,8 @@
         width: 40px;
         height: 40px;
         border-radius: 10px;
-        background: #FDFBF7;
-        color: var(--accent);
+        background: var(--accent);
+        color: #FDFBF7;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -259,10 +261,11 @@
         font-size: 17px;
         font-weight: 500;
         letter-spacing: 0.02em;
+        color: var(--ink);
     }
     .brand-sub {
         font-size: 11px;
-        color: rgba(253, 251, 247, 0.62);
+        color: var(--muted);
         margin-top: 3px;
     }
     .brand-main {
@@ -274,7 +277,7 @@
     .brand-kicker {
         font-size: 10px;
         letter-spacing: 0.18em;
-        color: rgba(253, 251, 247, 0.55);
+        color: var(--accent);
         margin-bottom: 18px;
     }
     .brand-title {
@@ -282,24 +285,25 @@
         line-height: 1.32;
         font-weight: 500;
         letter-spacing: 0.01em;
+        color: var(--ink);
         margin: 0 0 18px;
     }
     .brand-desc {
         font-size: 13px;
         line-height: 1.8;
-        color: rgba(253, 251, 247, 0.72);
+        color: var(--ink-2);
         margin: 0 0 34px;
     }
     .brand-points {
         list-style: none;
-        border-top: 1px solid rgba(253, 251, 247, 0.14);
+        border-top: 1px solid var(--line);
     }
     .brand-points li {
         display: grid;
         grid-template-columns: 34px 1fr;
         gap: 12px;
         padding: 14px 0;
-        border-bottom: 1px solid rgba(253, 251, 247, 0.14);
+        border-bottom: 1px solid var(--line);
         animation: login-rise 0.5s var(--login-ease) both;
     }
     .brand-points li:nth-child(1) {
@@ -313,7 +317,7 @@
     }
     .point-no {
         font-size: 11px;
-        color: rgba(253, 251, 247, 0.45);
+        color: var(--muted);
         padding-top: 2px;
     }
     .point-body {
@@ -324,31 +328,32 @@
     .point-body b {
         font-size: 13px;
         font-weight: 500;
-        color: #FDFBF7;
+        color: var(--ink);
     }
     .point-body span {
         font-size: 12px;
-        color: rgba(253, 251, 247, 0.58);
+        color: var(--muted);
     }
     .brand-foot {
         position: relative;
         z-index: 1;
         font-size: 11px;
-        color: rgba(253, 251, 247, 0.45);
+        color: var(--muted);
         animation: login-fade 0.6s var(--login-ease) 0.32s both;
     }
     .brand-foot .status-dot {
-        background: #8FBFA8;
+        background: var(--accent);
         margin-right: 8px;
     }
 
     .login-main {
-        flex: 1;
+        flex: 0 1 520px;
+        width: 520px;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        padding: 48px 24px;
+        padding: 40px 0;
         position: relative;
         animation: login-card-in 0.6s var(--login-ease) 0.12s both;
         min-width: 0;
@@ -451,7 +456,7 @@
     }
     .login-copy {
         position: absolute;
-        bottom: 18px;
+        bottom: 32px;
         font-size: 10px;
         color: var(--muted);
         letter-spacing: 0.06em;
@@ -509,8 +514,16 @@
     }
 
     @media (max-width: 960px) {
+        .login-page {
+            padding: 0;
+        }
         .login-brand {
             display: none;
+        }
+        .login-main {
+            flex: 1;
+            width: 100%;
+            padding: 48px 24px;
         }
     }
     @media (max-width: 480px) {
@@ -519,6 +532,9 @@
         }
         .login-card {
             padding: 26px 22px 18px;
+        }
+        .login-copy {
+            bottom: 18px;
         }
     }
     @media (prefers-reduced-motion: reduce) {
