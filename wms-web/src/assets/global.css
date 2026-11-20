@@ -374,6 +374,17 @@ html, body {
     font-size: 16px;
     font-weight: 500;
 }
+.el-message-box.stock-confirm-box {
+    --el-messagebox-width: 520px;
+    width: 520px !important;
+    max-width: calc(100vw - 32px);
+}
+.stock-confirm-box .el-message-box__message {
+    line-height: 1.8;
+}
+.stock-confirm-box .el-message-box__message p {
+    white-space: pre-line;
+}
 .el-dropdown-menu {
     border-radius: var(--radius-sm) !important;
     box-shadow: var(--shadow-md) !important;

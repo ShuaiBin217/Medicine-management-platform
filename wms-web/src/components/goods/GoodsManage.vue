@@ -463,16 +463,16 @@
                         return
                     }
                     this.form1.count = Number(this.form1.count)
-                    const actionText = isOut ? '发药出库（提交后为待确认，确认后才真正扣减）' : '采购入库'
-                    this.$confirm(
-                        `确定执行${actionText}操作？药品：${this.form1.goodsname}，数量：${this.form1.count}`,
-                        '库存操作确认',
-                        {
-                            confirmButtonText: '确定',
-                            cancelButtonText: '取消',
-                            type: 'warning'
-                        }
-                    ).then(() => {
+                    const actionText = isOut ? '发药出库' : '采购入库'
+                    const confirmText = isOut
+                        ? `药品：${this.form1.goodsname}\n数量：${this.form1.count}\n\n提交后将立即预占库存，确认后完成出库；回滚会恢复库存。\n\n确定要提交发药申请吗？`
+                        : `药品：${this.form1.goodsname}\n数量：${this.form1.count}\n\n确定要执行采购入库吗？`
+                    this.$confirm(confirmText, `${actionText}确认`, {
+                        confirmButtonText: isOut ? '提交申请' : '确定入库',
+                        cancelButtonText: '取消',
+                        type: 'warning',
+                        customClass: 'stock-confirm-box'
+                    }).then(() => {
                         this.submitting = true
                         this.submitInGoods()
                     }).catch(() => {})
@@ -483,7 +483,7 @@
                 const url = this.form1.action === '2' ? '/record/preDeduct' : '/record/save'
                 this.$axios.post(this.$httpUrl+url,this.form1).then(res=>res.data).then(res=>{
                     if(res.code==200){
-                        this.$message.success(this.form1.action === '2' ? '已提交出库申请，请到「药品流转记录」确认' : '操作成功！')
+                        this.$message.success(this.form1.action === '2' ? '已提交出库申请，库存已预占，请到「药品流转记录」确认' : '操作成功！')
                         this.inDialogVisible = false
                         this.loadPost()
                         this.resetInForm()
