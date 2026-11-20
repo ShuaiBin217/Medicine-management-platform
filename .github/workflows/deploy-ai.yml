@@ -1,4 +1,4 @@
-name: Build and Push AI Service Docker Image
+name: Build and Deploy AI Service
 
 on:
   push:
@@ -6,6 +6,7 @@ on:
     paths:
       - 'wms-ai/**'
       - '.github/workflows/deploy-ai.yml'
+  workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
@@ -21,11 +22,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
 
       - name: Log in to Container Registry
         uses: docker/login-action@v3
@@ -51,3 +47,48 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "${{ secrets.SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy on server
+        run: |
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} 'bash -s' <<'REMOTE'
+          set -e
+          IMAGE="ghcr.1ms.run/${{ github.repository }}/wms-ai:latest"
+
+          echo "==> pulling $IMAGE"
+          docker pull "$IMAGE"
+
+          echo "==> extracting app from image"
+          docker rm -f wms-ai-tmp >/dev/null 2>&1 || true
+          docker create --name wms-ai-tmp "$IMAGE"
+          rm -rf /root/wms-ai-app
+          docker cp wms-ai-tmp:/app /root/wms-ai-app
+          docker rm -f wms-ai-tmp
+
+          echo "==> replacing app code in running container"
+          docker cp /root/wms-ai-app/. wms-ai:/app/
+          docker restart wms-ai
+
+          echo "==> flushing redis cache"
+          docker exec redis redis-cli FLUSHDB
+
+          echo "==> waiting for ai service"
+          code=000
+          for i in $(seq 1 20); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8091/health || true)
+            [ "$code" = "200" ] && break
+            sleep 3
+          done
+          docker logs --tail 30 wms-ai
+          if [ "$code" != "200" ]; then
+            echo "ai health check failed: $code"
+            exit 1
+          fi
+          echo "ai deployed, http $code"
+          REMOTE

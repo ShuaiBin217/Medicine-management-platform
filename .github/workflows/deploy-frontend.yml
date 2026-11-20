@@ -1,4 +1,4 @@
-name: Deploy Frontend to GitHub Pages
+name: Deploy Frontend to Server
 
 on:
   push:
@@ -6,22 +6,18 @@ on:
     paths:
       - 'wms-web/**'
       - '.github/workflows/deploy-frontend.yml'
+  workflow_dispatch:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
-  group: "pages"
-  cancel-in-progress: false
+  group: "frontend-deploy"
+  cancel-in-progress: true
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -38,18 +34,16 @@ jobs:
 
       - name: Build
         run: cd wms-web && npm run build
-        env:
-          VITE_API_URL: ${{ secrets.VITE_API_URL }}
-          VITE_AI_URL: ${{ secrets.VITE_AI_URL }}
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "${{ secrets.SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: wms-web/dist
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Upload to nginx
+        run: |
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "rm -rf /usr/share/nginx/html/wms/*"
+          scp -r wms-web/dist/. ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/usr/share/nginx/html/wms/
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "ls -lh /usr/share/nginx/html/wms/ | head -10"

@@ -1,4 +1,4 @@
-name: Build and Push Backend Docker Image
+name: Build and Deploy Backend
 
 on:
   push:
@@ -6,6 +6,7 @@ on:
     paths:
       - 'wms/**'
       - '.github/workflows/deploy-backend.yml'
+  workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
@@ -29,9 +30,6 @@ jobs:
           distribution: 'temurin'
           cache: maven
           cache-dependency-path: wms/pom.xml
-
-      - name: Build with Maven
-        run: cd wms && mvn clean package -DskipTests
 
       - name: Log in to Container Registry
         uses: docker/login-action@v3
@@ -57,3 +55,44 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "${{ secrets.SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy on server
+        run: |
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} 'bash -s' <<'REMOTE'
+          set -e
+          IMAGE="ghcr.1ms.run/${{ github.repository }}/wms-backend:latest"
+
+          echo "==> pulling $IMAGE"
+          docker pull "$IMAGE"
+
+          echo "==> extracting jar from image"
+          docker rm -f wms-backend-tmp >/dev/null 2>&1 || true
+          docker create --name wms-backend-tmp "$IMAGE"
+          docker cp wms-backend-tmp:/app/app.jar /root/wms-new.jar
+          docker rm -f wms-backend-tmp
+
+          echo "==> replacing jar in running container"
+          docker cp /root/wms-new.jar wms-backend:/app/app.jar
+          docker restart wms-backend
+
+          echo "==> waiting for backend"
+          code=000
+          for i in $(seq 1 30); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8090/storage/list || true)
+            [ "$code" = "200" ] && break
+            sleep 3
+          done
+          docker logs --tail 40 wms-backend
+          if [ "$code" != "200" ]; then
+            echo "backend health check failed: $code"
+            exit 1
+          fi
+          echo "backend deployed, http $code"
+          REMOTE
