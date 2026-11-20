@@ -48,6 +48,16 @@ app.use(ElementPlus, { locale: zhCn })
 // 全局方法兜底：保证 this.$message/$confirm 等调用行为与 Vue 2 版一致
 app.config.globalProperties.$message = ElMessage
 app.config.globalProperties.$confirm = ElMessageBox.confirm
+// 操作栏等需要更易读的确认框：屏幕居中、加宽到 520px
+app.config.globalProperties.$confirmWide = (message, title = '操作确认', options = {}) => {
+  return ElMessageBox.confirm(message, title, {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning',
+    customClass: 'wms-confirm-box',
+    ...options
+  })
+}
 app.config.globalProperties.$alert = ElMessageBox.alert
 app.config.globalProperties.$prompt = ElMessageBox.prompt
 app.config.globalProperties.$notify = ElNotification

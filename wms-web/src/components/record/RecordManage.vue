@@ -77,12 +77,8 @@
                         <div v-if="scope.row.status === 0" class="row-actions">
                             <el-button size="small" type="primary" :loading="submitting"
                                        @click="confirmDeduct(scope.row)">确认</el-button>
-                            <el-popconfirm title="回滚后库存恢复，单据标记为已回滚并保留，确定吗？"
-                                           @confirm="rollbackDeduct(scope.row)">
-                                <template #reference>
-                                    <el-button size="small">回滚</el-button>
-                                </template>
-                            </el-popconfirm>
+                            <el-button size="small" :disabled="submitting"
+                                       @click="confirmRollback(scope.row)">回滚</el-button>
                         </div>
                         <span v-else class="muted">—</span>
                     </template>
@@ -141,13 +137,11 @@
                     this.$message.warning('请先选择要删除的记录')
                     return
                 }
-                this.$confirm(
+                this.$confirmWide(
                     `确定要删除选中的 ${this.selectedIds.length} 条流转记录吗？删除后不可恢复。`,
                     '批量删除确认',
                     {
-                        confirmButtonText: '确定删除',
-                        cancelButtonText: '取消',
-                        type: 'warning'
+                        confirmButtonText: '确定删除'
                     }
                 ).then(() => {
                     this.submitting = true
@@ -183,6 +177,14 @@
                 }).catch(()=>{
                     this.$message.error('网络错误')
                 }).finally(()=>{ this.submitting = false })
+            },
+            confirmRollback(row){
+                if(this.submitting) return
+                this.$confirmWide('回滚后库存恢复，单据标记为“已回滚”并保留，不会删除。确定要回滚该出库申请吗？', '回滚确认', {
+                    confirmButtonText: '确定回滚'
+                }).then(() => {
+                    this.rollbackDeduct(row)
+                }).catch(() => {})
             },
             rollbackDeduct(row){
                 if(this.submitting) return

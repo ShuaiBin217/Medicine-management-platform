@@ -53,15 +53,8 @@
                 <el-table-column prop="operate" label="操作" v-if="user.roleId!=2">
                     <template #default="scope">
                         <el-button size="small" @click="mod(scope.row)">编辑</el-button>
-                        <el-popconfirm
-                                title="确定删除吗？"
-                                @confirm="del(scope.row.id)"
-                                style="margin-left: 8px;"
-                        >
-                            <template #reference>
-                                <el-button size="small" type="danger">删除</el-button>
-                            </template>
-                        </el-popconfirm>
+                        <el-button size="small" type="danger" style="margin-left: 8px;"
+                                   @click="confirmDel(scope.row.id)">删除</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -313,6 +306,13 @@
             resetInForm(){
                 this.$refs.form1.resetFields();
             },
+            confirmDel(id){
+                this.$confirmWide('删除后不可恢复；若已有流转记录，记录会保留。确定要删除该药品吗？', '删除药品', {
+                    confirmButtonText: '删除'
+                }).then(() => {
+                    this.del(id)
+                }).catch(() => {})
+            },
             del(id){
                 console.log(id)
 
@@ -467,11 +467,8 @@
                     const confirmText = isOut
                         ? `药品：${this.form1.goodsname}\n数量：${this.form1.count}\n\n提交后将立即预占库存，确认后完成出库；回滚会恢复库存。\n\n确定要提交发药申请吗？`
                         : `药品：${this.form1.goodsname}\n数量：${this.form1.count}\n\n确定要执行采购入库吗？`
-                    this.$confirm(confirmText, `${actionText}确认`, {
-                        confirmButtonText: isOut ? '提交申请' : '确定入库',
-                        cancelButtonText: '取消',
-                        type: 'warning',
-                        customClass: 'stock-confirm-box'
+                    this.$confirmWide(confirmText, `${actionText}确认`, {
+                        confirmButtonText: isOut ? '提交申请' : '确定入库'
                     }).then(() => {
                         this.submitting = true
                         this.submitInGoods()

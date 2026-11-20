@@ -54,15 +54,8 @@
                             style="margin-left: 8px;"
                             @click="toggleValid(scope.row)"
                         >{{ scope.row.isvalid === 'Y' ? '停用' : '启用' }}</el-button>
-                        <el-popconfirm
-                                title="确定删除吗？"
-                                @confirm="del(scope.row.id)"
-                                style="margin-left: 8px;"
-                        >
-                            <template #reference>
-                                <el-button size="small" type="danger">删除</el-button>
-                            </template>
-                        </el-popconfirm>
+                        <el-button size="small" type="danger" style="margin-left: 8px;"
+                                   @click="confirmDel(scope.row.id)">删除</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -287,6 +280,13 @@
                         this.$message({message:res.msg||'操作失败！',type:'error'});
                     }
                 })
+            },
+            confirmDel(id){
+                this.$confirmWide('删除后不可恢复，确定要删除该用户吗？', '删除用户', {
+                    confirmButtonText: '删除'
+                }).then(() => {
+                    this.del(id)
+                }).catch(() => {})
             },
             del(id){
                 console.log(id)

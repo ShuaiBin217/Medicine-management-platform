@@ -23,15 +23,8 @@
                 <el-table-column prop="operate" label="操作">
                     <template #default="scope">
                         <el-button size="small" type="success" @click="mod(scope.row)">编辑</el-button>
-                        <el-popconfirm
-                                title="确定删除吗？"
-                                @confirm="del(scope.row.id)"
-                                style="margin-left: 8px;"
-                        >
-                            <template #reference>
-                                <el-button size="small" type="danger">删除</el-button>
-                            </template>
-                        </el-popconfirm>
+                        <el-button size="small" type="danger" style="margin-left: 8px;"
+                                   @click="confirmDel(scope.row.id)">删除</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -101,6 +94,13 @@
         methods:{
             resetForm() {
                 this.$refs.form.resetFields();
+            },
+            confirmDel(id){
+                this.$confirmWide('删除后不可恢复，确定要删除该药品分类吗？', '删除药品分类', {
+                    confirmButtonText: '删除'
+                }).then(() => {
+                    this.del(id)
+                }).catch(() => {})
             },
             del(id){
                 console.log(id)
