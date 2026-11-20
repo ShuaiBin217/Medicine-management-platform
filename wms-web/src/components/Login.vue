@@ -1,6 +1,13 @@
 <template>
     <div class="login-page">
         <section class="login-brand">
+            <div class="brand-visual" aria-hidden="true">
+                <svg viewBox="0 0 240 240" focusable="false">
+                    <path pathLength="1" d="M96 24H144V96H216V144H144V216H96V144H24V96H96Z"/>
+                    <circle cx="120" cy="120" r="3"/>
+                </svg>
+            </div>
+
             <div class="brand-top">
                 <div class="brand-mark">
                     <el-icon><FirstAidKit/></el-icon>
@@ -48,7 +55,7 @@
         </section>
 
         <main class="login-main">
-            <div class="login-card">
+            <div class="login-card" :class="{ 'is-error': errorShake }">
                 <div class="card-head">
                     <span class="card-kicker mono">SIGN IN</span>
                     <h2 class="card-title">登录</h2>
@@ -70,7 +77,10 @@
                     <el-form-item class="submit-item">
                         <el-button type="primary" @click="confirm" :disabled="confirm_disabled"
                                    :loading="confirm_disabled" class="login-btn">
-                            {{ confirm_disabled ? '正在登录…' : '登录' }}
+                            <span>{{ confirm_disabled ? '正在登录…' : '登录' }}</span>
+                            <el-icon v-if="!confirm_disabled" class="login-btn-arrow" aria-hidden="true">
+                                <Right/>
+                            </el-icon>
                         </el-button>
                     </el-form-item>
                 </el-form>
@@ -93,6 +103,9 @@
         data() {
             return {
                 confirm_disabled: false,
+                errorShake: false,
+                errorTimer: null,
+                errorFrame: null,
                 loginForm: {
                     no: '',
                     password: ''
@@ -107,8 +120,34 @@
                 }
             }
         },
+        beforeUnmount() {
+            this.resetError();
+        },
         methods: {
+            resetError() {
+                if (this.errorTimer) {
+                    window.clearTimeout(this.errorTimer);
+                    this.errorTimer = null;
+                }
+                if (this.errorFrame) {
+                    window.cancelAnimationFrame(this.errorFrame);
+                    this.errorFrame = null;
+                }
+                this.errorShake = false;
+            },
+            flagError() {
+                this.resetError();
+                this.errorFrame = window.requestAnimationFrame(() => {
+                    this.errorFrame = null;
+                    this.errorShake = true;
+                    this.errorTimer = window.setTimeout(() => {
+                        this.errorShake = false;
+                        this.errorTimer = null;
+                    }, 420);
+                });
+            },
             confirm() {
+                this.resetError();
                 this.confirm_disabled = true;
                 this.$refs.loginForm.validate((valid) => {
                     if (valid) {
@@ -123,11 +162,13 @@
                                     message: res.msg || '账号或密码错误',
                                     type: 'error'
                                 });
+                                this.flagError();
                                 return false;
                             }
                         }).catch(() => {
                             this.confirm_disabled = false;
                             this.$message.error('网络异常，请稍后重试');
+                            this.flagError();
                         });
                     } else {
                         this.confirm_disabled = false;
@@ -141,6 +182,7 @@
 
 <style scoped>
     .login-page {
+        --login-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
         min-height: 100vh;
         display: flex;
         background: var(--paper);
@@ -159,16 +201,34 @@
         position: relative;
         overflow: hidden;
     }
-    .login-brand::after {
-        content: '';
+    .brand-visual {
         position: absolute;
-        right: -160px;
-        bottom: -220px;
-        width: 460px;
-        height: 460px;
-        border: 1px solid rgba(253, 251, 247, 0.10);
-        border-radius: 50%;
+        right: -54px;
+        bottom: -58px;
+        width: 360px;
+        height: 360px;
+        color: rgba(253, 251, 247, 0.12);
         pointer-events: none;
+        z-index: 0;
+    }
+    .brand-visual svg {
+        display: block;
+        width: 100%;
+        height: 100%;
+        overflow: visible;
+    }
+    .brand-visual path {
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 1.5;
+        stroke-dasharray: 1;
+        stroke-dashoffset: 1;
+        animation: login-draw 1.5s var(--login-ease) 0.2s forwards;
+    }
+    .brand-visual circle {
+        fill: rgba(143, 191, 168, 0.55);
+        opacity: 0;
+        animation: login-fade 0.5s var(--login-ease) 1.05s forwards;
     }
     .brand-top {
         display: flex;
@@ -176,6 +236,7 @@
         gap: 12px;
         position: relative;
         z-index: 1;
+        animation: login-rise 0.55s var(--login-ease) both;
     }
     .brand-mark {
         width: 40px;
@@ -208,6 +269,7 @@
         position: relative;
         z-index: 1;
         max-width: 440px;
+        animation: login-rise 0.6s var(--login-ease) 0.08s both;
     }
     .brand-kicker {
         font-size: 10px;
@@ -238,6 +300,16 @@
         gap: 12px;
         padding: 14px 0;
         border-bottom: 1px solid rgba(253, 251, 247, 0.14);
+        animation: login-rise 0.5s var(--login-ease) both;
+    }
+    .brand-points li:nth-child(1) {
+        animation-delay: 0.16s;
+    }
+    .brand-points li:nth-child(2) {
+        animation-delay: 0.22s;
+    }
+    .brand-points li:nth-child(3) {
+        animation-delay: 0.28s;
     }
     .point-no {
         font-size: 11px;
@@ -263,6 +335,7 @@
         z-index: 1;
         font-size: 11px;
         color: rgba(253, 251, 247, 0.45);
+        animation: login-fade 0.6s var(--login-ease) 0.32s both;
     }
     .brand-foot .status-dot {
         background: #8FBFA8;
@@ -277,14 +350,24 @@
         justify-content: center;
         padding: 48px 24px;
         position: relative;
+        animation: login-card-in 0.6s var(--login-ease) 0.12s both;
+        min-width: 0;
     }
     .login-card {
-        width: 380px;
-        max-width: 100%;
+        width: 100%;
+        max-width: 380px;
         background: var(--card);
         border: 1px solid var(--line);
         border-radius: 16px;
         padding: 34px 32px 22px;
+        transition: border-color 0.18s var(--login-ease);
+    }
+    .login-card:focus-within {
+        border-color: rgba(29, 107, 79, 0.30);
+    }
+    .login-card.is-error {
+        border-color: rgba(185, 28, 28, 0.38);
+        animation: login-shake 0.38s var(--login-ease);
     }
     .card-head {
         margin-bottom: 26px;
@@ -305,6 +388,18 @@
         line-height: 1.4;
         font-size: 12px;
         color: var(--ink-2);
+        transition: color 0.18s var(--login-ease);
+    }
+    .login-form :deep(.el-form-item:focus-within .el-form-item__label) {
+        color: var(--accent) !important;
+    }
+    .login-form :deep(.el-input__wrapper) {
+        transition: border-color 0.18s var(--login-ease), box-shadow 0.18s var(--login-ease);
+    }
+    .login-form :deep(.el-input__wrapper:focus-within),
+    .login-form :deep(.el-input__wrapper.is-focus) {
+        border-color: var(--accent) !important;
+        box-shadow: 0 0 0 1px var(--accent) inset, 0 0 0 3px rgba(29, 107, 79, 0.10) !important;
     }
     .login-form :deep(.el-form-item) {
         margin-bottom: 18px;
@@ -319,6 +414,30 @@
         font-size: 14px;
         letter-spacing: 0.04em;
         border-radius: 8px !important;
+        transition: background-color 0.18s var(--login-ease), transform 0.12s var(--login-ease);
+    }
+    .login-btn :deep(> span) {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+    .login-btn-arrow {
+        font-size: 14px;
+        transition: transform 0.18s var(--login-ease);
+    }
+    .login-btn:hover:not(:disabled) {
+        transform: translateY(-1px);
+    }
+    .login-btn:hover:not(:disabled) .login-btn-arrow {
+        transform: translateX(3px);
+    }
+    .login-btn:active:not(:disabled) {
+        transform: translateY(0);
+    }
+    .login-btn:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
     }
     .card-foot {
         display: flex;
@@ -338,6 +457,57 @@
         letter-spacing: 0.06em;
     }
 
+    @keyframes login-rise {
+        from {
+            opacity: 0;
+            transform: translate3d(0, 8px, 0);
+        }
+        to {
+            opacity: 1;
+            transform: translate3d(0, 0, 0);
+        }
+    }
+    @keyframes login-card-in {
+        from {
+            opacity: 0;
+            transform: translate3d(0, 12px, 0);
+        }
+        to {
+            opacity: 1;
+            transform: translate3d(0, 0, 0);
+        }
+    }
+    @keyframes login-fade {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+    @keyframes login-draw {
+        to {
+            stroke-dashoffset: 0;
+        }
+    }
+    @keyframes login-shake {
+        0%, 100% {
+            transform: translateX(0);
+        }
+        20% {
+            transform: translateX(-4px);
+        }
+        40% {
+            transform: translateX(4px);
+        }
+        60% {
+            transform: translateX(-3px);
+        }
+        80% {
+            transform: translateX(2px);
+        }
+    }
+
     @media (max-width: 960px) {
         .login-brand {
             display: none;
@@ -349,6 +519,39 @@
         }
         .login-card {
             padding: 26px 22px 18px;
+        }
+    }
+    @media (prefers-reduced-motion: reduce) {
+        .login-main,
+        .brand-top,
+        .brand-main,
+        .brand-points li,
+        .brand-foot {
+            animation: none;
+            opacity: 1;
+            transform: none;
+        }
+        .brand-visual path {
+            animation: none;
+            stroke-dashoffset: 0;
+        }
+        .brand-visual circle {
+            animation: none;
+            opacity: 1;
+        }
+        .login-card.is-error {
+            animation: none;
+        }
+        .login-btn,
+        .login-btn-arrow,
+        .login-card,
+        .login-form :deep(.el-input__wrapper),
+        .login-form :deep(.el-form-item__label) {
+            transition: none;
+        }
+        .login-btn:hover:not(:disabled),
+        .login-btn:hover:not(:disabled) .login-btn-arrow {
+            transform: none;
         }
     }
 </style>
